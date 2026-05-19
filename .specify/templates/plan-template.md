@@ -40,7 +40,13 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **Traceability Gate**: 所有資料欄位設計是否包含 `source_url` 與 `fetched_at`？
+- [ ] **AI Boundary Gate**: LLM 呼叫是否限定在摘要/分類/標記，且附有免責聲明？
+- [ ] **UI Decoupling Gate**: UI 是否透過 ViewModel/Service 層取得資料，無直接外部呼叫？
+- [ ] **MVP Scope Gate**: 本 spec 的需求是否全數在 MVP 清單內，或已明確標註 Phase N？
+- [ ] **Testability Gate**: 每個 Service 與 Repository 是否有明確介面可供 Mock？
+- [ ] **Fallback Gate**: 網路失敗路徑是否有快取回退與可見錯誤狀態設計？
+- [ ] **Cost Gate**: LLM 與外部 API 呼叫是否有頻率控制與 token 記錄設計？
 
 ## Project Structure
 
