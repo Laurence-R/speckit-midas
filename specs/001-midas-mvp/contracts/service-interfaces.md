@@ -120,6 +120,15 @@ class IMarketAgent(ABC):
     def fetch_overview(self, trading_date: str) -> MarketOverview:
         """Raises: DataFetchError on failure"""
         ...
+
+    @abstractmethod
+    def get_stock_info(self, symbol: str) -> dict:
+        """
+        Returns {'symbol': str, 'company_name': str, 'industry': str}.
+        Used by WatchlistService to retrieve company name on add().
+        Raises: DataFetchError if symbol not found.
+        """
+        ...
 ```
 
 ### IAnnouncementAgent

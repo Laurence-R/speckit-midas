@@ -86,7 +86,7 @@ midas/
 │       │       ├── __init__.py
 │       │       ├── sidebar_nav.py          # 左側導航列
 │       │       ├── status_bar.py           # 底部狀態列（進度 + 更新時間）
-│       │       ├── market_overview_card.py # 大盤概況卡（US-01/US-06）
+│       │       ├── market_overview_card.py # 大盤概況卡（US-01）
 │       │       ├── event_list_item.py      # 首頁事件清單行
 │       │       ├── stock_event_card.py     # 個股詳情事件卡（含摘要、來源、免責聲明）
 │       │       └── financial_metric_row.py # 財務指標行（含方向標示）
@@ -366,7 +366,7 @@ class GeminiClient:
 
 | 頁面 | 主要元件 | ViewModel | 對應 US |
 |------|---------|-----------|---------|
-| `DashboardPage` | `MarketOverviewCard` + `EventListItem` 列表 | `DashboardViewModel` | US-01, US-06 |
+| `DashboardPage` | `MarketOverviewCard` + `EventListItem` 列表 | `DashboardViewModel` | US-01 |
 | `StockDetailPage` | Tab: `StockEventCard` 列表 / `FinancialMetricRow` 列表 | `StockDetailViewModel` | US-02, US-03 |
 | `WatchlistPage` | 追蹤股清單 + 新增/刪除/備忘 | `WatchlistViewModel` | US-04 |
 | `TaskCenterPage` | UpdateJob 歷史、手動重試按鈕 | —（直接讀 UpdateJobRepo） | US-05 |
