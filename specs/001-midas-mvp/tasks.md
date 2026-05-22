@@ -16,11 +16,11 @@
 **目的**: 建立可運行的 Python 專案骨架，所有後續 phase 都依賴此基礎
 **預估**: 0.5 天
 
-- [ ] T001 初始化 uv 專案：執行 `uv init` 並設定 `pyproject.toml`（Python 3.12、所有依賴：customtkinter, finmindapi, requests, beautifulsoup4, google-generativeai, platformdirs, pytest, pytest-mock, pyinstaller）
-- [ ] T002 [P] 建立完整目錄結構：`src/midas/{ui,viewmodels,services,agents,repositories,models,integrations,tasks}/`、`tests/{unit,integration}/`、`scripts/`（依 plan.md Project Structure）
-- [ ] T003 [P] 建立 `.env.example`（含 `FINMIND_TOKEN=`, `GEMINI_API_KEY=`, `MIDAS_DB_PATH=`）與 `.gitignore`（含 `.env`, `*.db`, `dist/`, `build/`）
-- [ ] T004 [P] 設定開發工具：`ruff`（linting + formatting）、`pytest.ini`（`testpaths=tests`、`markers = integration`）於 `pyproject.toml`
-- [ ] T005 建立 `src/midas/config.py`：`AppConfig` dataclass，讀取 `APPDATA/Midas` 路徑（用 `platformdirs`）、載入 `.env` 環境變數（`FINMIND_TOKEN`, `GEMINI_API_KEY`）
+- [x] T001 初始化 uv 專案：執行 `uv init` 並設定 `pyproject.toml`（Python 3.12、所有依賴：customtkinter, finmindapi, requests, beautifulsoup4, google-generativeai, platformdirs, pytest, pytest-mock, pyinstaller）
+- [x] T002 [P] 建立完整目錄結構：`src/midas/{ui,viewmodels,services,agents,repositories,models,integrations,tasks}/`、`tests/{unit,integration}/`、`scripts/`（依 plan.md Project Structure）
+- [x] T003 [P] 建立 `.env.example`（含 `FINMIND_TOKEN=`, `GEMINI_API_KEY=`, `MIDAS_DB_PATH=`）與 `.gitignore`（含 `.env`, `*.db`, `dist/`, `build/`）
+- [x] T004 [P] 設定開發工具：`ruff`（linting + formatting）、`pytest.ini`（`testpaths=tests`、`markers = integration`）於 `pyproject.toml`
+- [x] T005 建立 `src/midas/config.py`：`AppConfig` dataclass，讀取 `APPDATA/Midas` 路徑（用 `platformdirs`）、載入 `.env` 環境變數（`FINMIND_TOKEN`, `GEMINI_API_KEY`）
 
 **Checkpoint A**: `uv sync` 成功、`pytest` 執行零 test 無報錯、`python -c "from midas.config import AppConfig; print(AppConfig())"` 可執行
 
@@ -32,14 +32,14 @@
 **依賴**: Phase A 完成
 **預估**: 1 天
 
-- [ ] T006 建立 `src/midas/ui/theme.py`：定義顏色常數（深色/亮色 palette）、CTk `set_appearance_mode` 初始化邏輯
-- [ ] T007 建立 `src/midas/ui/app_window.py`：`AppWindow(ctk.CTkFrame)`，包含 1280×800 視窗、左側 `SidebarNav`（180px）佔位框、右側內容區 `ContentArea`（CTkFrame 容器）、底部 `StatusBar`（28px）
-- [ ] T008 [P] 建立 `src/midas/ui/components/sidebar_nav.py`：`SidebarNav(ctk.CTkFrame)`，含首頁/追蹤清單/任務中心/設定四個導航按鈕，點擊時呼叫 callback `on_navigate(page_name: str)`
-- [ ] T009 [P] 建立 `src/midas/ui/components/status_bar.py`：`StatusBar(ctk.CTkFrame)`，含更新時間標籤、進度文字標籤、重試按鈕（預設隱藏）；提供 `update_progress(step, total, label)`、`show_error(msg)`、`show_ready(timestamp)` 方法
-- [ ] T010 建立 5 個頁面佔位 Frame（僅標題文字）：`src/midas/ui/pages/{dashboard_page,stock_detail_page,watchlist_page,settings_page,task_center_page}.py`；每個 page 為 `ctk.CTkFrame` 子類別
-- [ ] T011 建立 `src/midas/app.py`：`App(ctk.CTk)`，在 `__init__` 中初始化所有 Page Frame、以 `tkraise()` 實作頁面切換、連接 `SidebarNav` callback；啟動 `self.after(500, self._check_queue)`（queue 輪詢佔位）
-- [ ] T012 建立 `main.py`：呼叫 `App().mainloop()`；設定 `ctk.set_appearance_mode("dark")` 預設深色
-- [ ] T013 驗證主題切換機制：在 `app.py` 加入暫時性呼叫確認 `ctk.set_appearance_mode("dark")` / `ctk.set_appearance_mode("light")` 可正常切換（骨架期驗證）；Phase B 不在 SettingsPage 加入切換按鈕，完整設定頁面主題切換由 T055 負責
+- [x] T006 建立 `src/midas/ui/theme.py`：定義顏色常數（深色/亮色 palette）、CTk `set_appearance_mode` 初始化邏輯
+- [x] T007 建立 `src/midas/ui/app_window.py`：`AppWindow(ctk.CTkFrame)`，包含 1280×800 視窗、左側 `SidebarNav`（180px）佔位框、右側內容區 `ContentArea`（CTkFrame 容器）、底部 `StatusBar`（28px）
+- [x] T008 [P] 建立 `src/midas/ui/components/sidebar_nav.py`：`SidebarNav(ctk.CTkFrame)`，含首頁/自選股/API 監控/設定四個導航按鈕，點擊時呼叫 callback `on_navigate(page_name: str)`
+- [x] T009 [P] 建立 `src/midas/ui/components/status_bar.py`：`StatusBar(ctk.CTkFrame)`，含更新時間標籤、進度文字標籤、重試按鈕（預設隱藏）；提供 `update_progress(step, total, label)`、`show_error(msg)`、`show_ready(timestamp)` 方法
+- [x] T010 建立 5 個頁面佔位 Frame（僅標題文字）：`src/midas/ui/pages/{dashboard_page,stock_detail_page,watchlist_page,settings_page,api_monitor_page}.py`；每個 page 為 `ctk.CTkFrame` 子類別
+- [x] T011 建立 `src/midas/app.py`：`App(ctk.CTk)`，在 `__init__` 中初始化所有 Page Frame、以 `tkraise()` 實作頁面切換、連接 `SidebarNav` callback；啟動 `self.after(500, self._check_queue)`（queue 輪詢佔位）
+- [x] T012 建立 `main.py`：呼叫 `App().mainloop()`；設定 `ctk.set_appearance_mode("dark")` 預設深色
+- [x] T013 驗證主題切換機制：在 `app.py` 加入暫時性呼叫確認 `ctk.set_appearance_mode("dark")` / `ctk.set_appearance_mode("light")` 可正常切換（骨架期驗證）；Phase B 不在 SettingsPage 加入切換按鈕，完整設定頁面主題切換由 T055 負責
 
 **Checkpoint B**: `python main.py` 啟動後顯示主視窗，5 個導航按鈕可切換頁面，深色/亮色可切換，冷啟動 < 3 秒
 
@@ -53,28 +53,28 @@
 
 ### C-1: Models & Schema
 
-- [ ] T014 [P] 建立所有 Python dataclasses（5 個檔案）：
+- [x] T014 [P] 建立所有 Python dataclasses（5 個檔案）：
   - `src/midas/models/tracked_stock.py`：`TrackedStock` dataclass
   - `src/midas/models/market_event.py`：`MarketEvent` dataclass + `EventType` enum + `Sentiment` enum
   - `src/midas/models/financial_metric.py`：`FinancialMetric` dataclass + `MetricType` enum + `Direction` enum
   - `src/midas/models/market_overview.py`：`MarketOverview` dataclass
   - `src/midas/models/update_job.py`：`UpdateJob` dataclass（`JobStatus` enum：running/success/failed/partial）
-- [ ] T014a [P] 建立 `src/midas/exceptions.py`：定義所有自訂例外類別：`MidasError`（基底）、`DataFetchError(source: str, reason: str, retryable: bool)`、`LLMQuotaExceededError`、`CacheExpiredError`、`WatchlistLimitError`；T025、T036、T039、T043、T057 均依賴此模組
-- [ ] T015 建立 `src/midas/repositories/database.py`：`DatabaseManager`，負責確認 `%APPDATA%\Midas\` 目錄存在、建立 SQLite 連線、執行 `PRAGMA user_version = 1`、建立所有 5 張資料表（`tracked_stocks, market_events, financial_metrics, market_overviews, update_jobs`）及 `app_settings` KV 表、建立索引、插入預設 `app_settings`
-- [ ] T016 [P] 建立所有 Repository ABCs：`src/midas/repositories/interfaces.py`（含 `ITrackedStockRepository`, `IMarketEventRepository`, `IFinancialMetricRepository`, `IMarketOverviewRepository`, `IUpdateJobRepository`，依 `contracts/service-interfaces.md`）
+- [x] T014a [P] 建立 `src/midas/exceptions.py`：定義所有自訂例外類別：`MidasError`（基底）、`DataFetchError(source: str, reason: str, retryable: bool)`、`LLMQuotaExceededError`、`CacheExpiredError`、`WatchlistLimitError`；T025、T036、T039、T043、T057 均依賴此模組
+- [x] T015 建立 `src/midas/repositories/database.py`：`DatabaseManager`，負責確認 `%APPDATA%\Midas\` 目錄存在、建立 SQLite 連線、執行 `PRAGMA user_version = 1`、建立所有 5 張資料表（`tracked_stocks, market_events, financial_metrics, market_overviews, update_jobs`）及 `app_settings` KV 表、建立索引、插入預設 `app_settings`
+- [x] T016 [P] 建立所有 Repository ABCs：`src/midas/repositories/interfaces.py`（含 `ITrackedStockRepository`, `IMarketEventRepository`, `IFinancialMetricRepository`, `IMarketOverviewRepository`, `IUpdateJobRepository`，依 `contracts/service-interfaces.md`）
 
 ### C-2: Repository Implementations
 
-- [ ] T017 [P] 建立 `src/midas/repositories/tracked_stock_repo.py`：實作 `ITrackedStockRepository`（`add, remove, get_all, get_by_symbol, update_memo, count, search_by_symbol_or_name(query: str) -> list[TrackedStock]`）；新增股票使用 `INSERT OR IGNORE`（防止重複新增覆蓋 `added_at`）；更新備忘/排序時使用 `UPDATE ... WHERE symbol=?`（不觸碰 `added_at`）
-- [ ] T018 [P] 建立 `src/midas/repositories/market_event_repo.py`：實作 `IMarketEventRepository`（`upsert_many, get_by_symbol_date, get_today_events_for_symbols`）；`upsert_many` 使用 `INSERT OR IGNORE`（以 UNIQUE(symbol, event_date, source_url) 去重）
-- [ ] T019 [P] 建立 `src/midas/repositories/financial_metric_repo.py`：實作 `IFinancialMetricRepository`（`upsert_many, get_by_symbol, is_cache_valid`）；`is_cache_valid` 判斷最後 `fetched_at` 是否在 7 天內
-- [ ] T020 [P] 建立 `src/midas/repositories/market_overview_repo.py`：實作 `IMarketOverviewRepository`（`upsert, get_by_date, get_latest`）
-- [ ] T021 [P] 建立 `src/midas/repositories/update_job_repo.py`：實作 `IUpdateJobRepository`（`create, update_progress, complete, fail, get_latest, get_history`）
+- [x] T017 [P] 建立 `src/midas/repositories/tracked_stock_repo.py`：實作 `ITrackedStockRepository`（`add, remove, get_all, get_by_symbol, update_memo, count, search_by_symbol_or_name(query: str) -> list[TrackedStock]`）；新增股票使用 `INSERT OR IGNORE`（防止重複新增覆蓋 `added_at`）；更新備忘/排序時使用 `UPDATE ... WHERE symbol=?`（不觸碰 `added_at`）
+- [x] T018 [P] 建立 `src/midas/repositories/market_event_repo.py`：實作 `IMarketEventRepository`（`upsert_many, get_by_symbol_date, get_today_events_for_symbols`）；`upsert_many` 使用 `INSERT OR IGNORE`（以 UNIQUE(symbol, event_date, source_url) 去重）
+- [x] T019 [P] 建立 `src/midas/repositories/financial_metric_repo.py`：實作 `IFinancialMetricRepository`（`upsert_many, get_by_symbol, is_cache_valid`）；`is_cache_valid` 判斷最後 `fetched_at` 是否在 7 天內
+- [x] T020 [P] 建立 `src/midas/repositories/market_overview_repo.py`：實作 `IMarketOverviewRepository`（`upsert, get_by_date, get_latest`）
+- [x] T021 [P] 建立 `src/midas/repositories/update_job_repo.py`：實作 `IUpdateJobRepository`（`create, update_progress, complete, fail, get_latest, get_history`）
 
 ### C-3: Unit Tests (Data Layer)
 
-- [ ] T022 [P] 建立 `tests/unit/test_cache_strategy.py`：測試 `FinancialMetricRepo.is_cache_valid()` 在不同 `fetched_at` 情境（7 天內 / 超過 7 天 / NULL）；使用 in-memory SQLite（`:memory:`）
-- [ ] T023 [P] 建立 `tests/integration/test_sqlite_repos.py`（標記 `@pytest.mark.integration`）：對真實 in-memory SQLite 測試所有 Repo 的 CRUD + upsert 去重 + constraint 驗證
+- [x] T022 [P] 建立 `tests/unit/test_cache_strategy.py`：測試 `FinancialMetricRepo.is_cache_valid()` 在不同 `fetched_at` 情境（7 天內 / 超過 7 天 / NULL）；使用 in-memory SQLite（`:memory:`）
+- [x] T023 [P] 建立 `tests/integration/test_sqlite_repos.py`（標記 `@pytest.mark.integration`）：對真實 in-memory SQLite 測試所有 Repo 的 CRUD + upsert 去重 + constraint 驗證
 
 **Checkpoint C**: `pytest tests/unit/test_cache_strategy.py` 全綠；`python -c "from midas.repositories.database import DatabaseManager; DatabaseManager().init()"` 建立 DB 不報錯；所有 5 張表存在
 
@@ -87,43 +87,42 @@
 **對應**: US-01（大盤概況）、US-03（財務資料）、US-05（背景更新）
 **預估**: 1.5 天
 
-- [ ] T024 建立 `src/midas/integrations/finmind_client.py`：`FinMindClient` 類別，含：
+- [x] T024 建立 `src/midas/integrations/finmind_client.py`：`FinMindClient` 類別，含：
   - Token 管理（從 `AppConfig` 讀取 `FINMIND_TOKEN`）
   - 請求速率控制（每小時 600 次上限；in-memory 累計計數器追蹤本次更新回合的請求數；若累計達 800 次，拋出 `DataFetchError(retryable=False)` 中止更新）
   - HTTP 429 處理：等待 60 秒後重試，最多 3 次
   - HTTP 5xx：指數退避重試（base=2, max=3）
   - 所有請求 `timeout=15`
   - 方法：`get_market_overview(date: str) -> dict`、`get_institutional_investors(date: str) -> dict`、`get_sector_rankings(date: str) -> list`、`get_financial_statements(symbol: str, start_date: str) -> dict`、`get_stock_info(symbol: str) -> dict`
-- [ ] T025 建立 `tests/unit/test_finmind_client_quota.py`：測試當日請求數超過 800 時拋出 `DataFetchError`、測試 429 重試邏輯（mock requests）；**不呼叫真實 API**
-- [ ] T026 建立 `tests/integration/test_finmind_client.py`（`@pytest.mark.integration`）：對真實 FinMind API 的端對端測試，需設定 `FINMIND_TOKEN`
+- [x] T025 建立 `tests/unit/test_finmind_client_quota.py`：測試當日請求數超過 800 時拋出 `DataFetchError`、測試 429 重試邏輯（mock requests）；**不呼叫真實 API**
+- [x] T026 建立 `tests/integration/test_finmind_client.py`（`@pytest.mark.integration`）：對真實 FinMind API 的端對端測試，需設定 `FINMIND_TOKEN`
 
 **Checkpoint D**: `pytest tests/unit/test_finmind_client_quota.py` 全綠；手動執行 `FinMindClient().get_stock_info("2330")` 回傳台積電資料
 
 ---
 
-## Phase E: 事件資料整合 (MOPS Crawler)
+## Phase E: 事件資料整合 (FinMind 新聞整合)
 
-**目的**: 封裝 MOPS 爬蟲，含事件分類、正規化、去重寫入；為 AnnouncementAgent 提供資料基礎
+**目的**: 封裝 FinMind TaiwanStockNews API，含事件分類、正規化、去重寫入；為 AnnouncementAgent 提供資料基礎
 **依賴**: Phase C 完成（Phase D 可平行進行）
 **對應**: US-01（首頁事件）、US-02（個股事件）
 **預估**: 1.5 天
 
-- [ ] T027a [P] 建立 `src/midas/agents/interfaces.py`：所有 Agent ABCs（`IMarketAgent`、`IAnnouncementAgent`、`IFinancialAgent`、`ISummarizationAgent`、`IOrchestrator`），含方法簽章及 docstring，依 `contracts/service-interfaces.md`；`IMarketAgent` 包含 `fetch_overview(date)` 與 `get_stock_info(symbol) -> dict`（供 WatchlistService 注入使用）
-- [ ] T027 建立 `src/midas/integrations/mops_client.py`：`MOPSClient` 類別，含：
-  - BASE_URL：`https://mops.twse.com.tw/mops/web`
-  - 500ms 請求間隔（`time.sleep(0.5)`）
-  - `timeout=10`、UTF-8 / big5 編碼處理
-  - form POST 請求（`requests.post`）
-  - 方法：`get_announcements(symbol: str, date: str) -> list[dict]`（回傳原始公告列表）
-  - 失敗處理：解析失敗記錄 warning log，回傳空列表（不中斷整體更新）
-- [ ] T028 建立 `src/midas/agents/announcement_agent.py`：`AnnouncementAgent`，實作 `IAnnouncementAgent`：
+- [x] T027a [P] 建立 `src/midas/agents/interfaces.py`：所有 Agent ABCs（`IMarketAgent`、`IAnnouncementAgent`、`IFinancialAgent`、`ISummarizationAgent`、`IOrchestrator`），含方法簽章及 docstring，依 `contracts/service-interfaces.md`；`IMarketAgent` 包含 `fetch_overview(date)` 與 `get_stock_info(symbol) -> dict`（供 WatchlistService 注入使用）
+- [x] T027 建立 `src/midas/agents/announcement_agent.py` 中 FinMind 新聞抓取逻輯：
+  - 呼叫 `FinMindClient.get_stock_news(symbol, date)`，使用 TaiwanStockNews REST API
+  - 回傳欄位：`title`, `description`, `link`, `source`, `date`, `stock_id`
+  - 請求成功後記錄 `_request_count += 1`
+  - 失敗處理：記錄 warning log，回傳空列表（不中斷整體更新）
+  - 建議將此項定義為建立 `src/midas/integrations/finmind_client.py` 中 `get_stock_news` 方法的次項
+- [x] T028 建立 `src/midas/agents/announcement_agent.py`：`AnnouncementAgent`，實作 `IAnnouncementAgent`：
   - `_classify_event(title: str, page_code: str) -> EventType`：根據標題關鍵字判斷類型（財報/法說/重訊/一般）
-  - `_normalize(raw: dict, symbol: str) -> MarketEvent`：原始 dict → MarketEvent dataclass
-  - `fetch_announcements(symbol: str, date: str) -> list[MarketEvent]`：呼叫 MOPSClient → 分類 → 正規化
-- [ ] T029 建立 `tests/unit/test_event_classifier.py`：測試 `_classify_event()` 的各種標題輸入（含邊界案例：空白標題、含財報關鍵字的法說標題）；使用 `fixtures/sample_mops_announcement.html` 靜態 HTML
-- [ ] T030 [P] 建立 `tests/fixtures/sample_mops_announcement.html`：MOPS 真實頁面結構的靜態 HTML（匿名化股票代號）
+  - `_normalize_news(raw: dict, symbol: str) -> MarketEvent`：原始 FinMind 新聞 dict → MarketEvent dataclass（時間使用 `occurred_at`）
+  - `fetch_announcements(symbol: str, date: str) -> list[MarketEvent]`：呼叫 `FinMindClient.get_stock_news()` → 分類 → 正規化
+- [x] T029 建立 `tests/unit/test_event_classifier.py`：測試 `_classify_event()` 的各種標題輸入（含邊界案例：空白標題、含財報關鍵字的法說標題）；mock FinMindClient 回傳假資料
+- [x] T030 [P] `tests/fixtures/sample_mops_announcement.html`：舊版 MOPS HTML 假資料（已不使用，保留供參考）
 
-**Checkpoint E**: `pytest tests/unit/test_event_classifier.py` 全綠；`AnnouncementAgent().fetch_announcements("2330", "2026-05-19")` 可執行（mock MOPSClient）
+**Checkpoint E**: `pytest tests/unit/test_event_classifier.py` 全綠；`AnnouncementAgent().fetch_announcements("2330", "2026-05-19")` 可執行（mock FinMindClient）
 
 ---
 
@@ -136,7 +135,7 @@
 
 ### F-1: 財務指標計算
 
-- [ ] T031 建立 `src/midas/agents/financial_agent.py`：`FinancialAgent`，實作 `IFinancialAgent`：
+- [x] T031 建立 `src/midas/agents/financial_agent.py`：`FinancialAgent`，實作 `IFinancialAgent`：
   - `_calculate_metrics(raw_data: dict, symbol: str) -> list[FinancialMetric]`：
     - EPS：直接取值
     - 毛利率：`GrossProfit / (GrossProfit + COGS) * 100`
@@ -146,26 +145,26 @@
     - 方向計算：`change_pct = (cur - prev) / abs(prev) * 100`；`> +5` = improving, `< -5` = declining
     - `is_unreported=True` 若該季無資料
   - `fetch_and_calculate(symbol: str) -> list[FinancialMetric]`：呼叫 FinMindClient（`start_date` = 今日往前推 1095 天，即約 3 年 ≈ 12 季）→ 計算 → 回傳最近 12 季
-- [ ] T032 建立 `tests/unit/test_financial_calculator.py`：測試 5 大指標計算 + ±5% 方向判定邏輯（含邊界：`change_pct = +5.0`、`prev = 0`、`is_unreported` 情境）；使用 `fixtures/sample_finmind_financial.json`
-- [ ] T033 [P] 建立 `tests/fixtures/sample_finmind_financial.json`：仿 FinMind `TaiwanStockFinancialStatements` API 回應格式（12 季資料，含 NULL 季度）
-- [ ] T033a [P] 建立 `tests/fixtures/sample_finmind_price.json`：仿 FinMind 大盤日線資料 API 回應格式（加權指數、成交量、三大法人資料），供 MarketAgent.fetch_overview 測試使用
+- [x] T032 建立 `tests/unit/test_financial_calculator.py`：測試 5 大指標計算 + ±5% 方向判定邏輯（含邊界：`change_pct = +5.0`、`prev = 0`、`is_unreported` 情境）；使用 `fixtures/sample_finmind_financial.json`
+- [x] T033 [P] 建立 `tests/fixtures/sample_finmind_financial.json`：仿 FinMind `TaiwanStockFinancialStatements` API 回應格式（12 季資料，含 NULL 季度）
+- [x] T033a [P] 建立 `tests/fixtures/sample_finmind_price.json`：仿 FinMind 大盤日線資料 API 回應格式（加權指數、成交量、三大法人資料），供 MarketAgent.fetch_overview 測試使用
 
 ### F-2: LLM 摘要管線
 
-- [ ] T034 建立 `src/midas/integrations/gemini_client.py`：`GeminiClient` 類別，含：
-  - `MODEL = "gemini-2.5-flash-lite"`
+- [x] T034 建立 `src/midas/integrations/gemini_client.py`：`GeminiClient` 類別，含：
+  - `MODEL = "gemini-3.5-flash"`
   - 每次呼叫前：讀取 `app_settings.llm_daily_calls`；若 >= 50 且 `llm_daily_date` = 今日 → 拋出 `LLMQuotaExceededError`（實作 FR-032 每日 50 次配額上限）
   - 每次呼叫後：更新 `llm_daily_calls + 1`、`llm_daily_date`
   - `generate(system_prompt: str, user_text: str) -> str`：呼叫 Gemini API，回傳 JSON 字串
-  - `SYSTEM_PROMPT` 常數：限摘要 100–200 字、禁止買賣建議、禁止數值計算
-- [ ] T035 建立 `src/midas/agents/summarization_agent.py`：`SummarizationAgent`，實作 `ISummarizationAgent`：
+  - `SYSTEM_PROMPT` 常數：長期投資框架分析觀點，輸出【新聞摘要】+【分析解讀】①②③ 結構化格式，禁止買賣建議、禁止數値計算
+- [x] T035 建立 `src/midas/agents/summarization_agent.py`：`SummarizationAgent`，實作 `ISummarizationAgent`：
   - `summarize_events(symbol: str, events: list[MarketEvent]) -> list[MarketEvent]`：
     - 批次打包同公司所有事件為單次 LLM 呼叫
     - 解析 JSON 回應 `{"events": [{"id": ..., "summary": ..., "sentiment": ...}]}`
-    - 驗證：摘要 100–200 字、sentiment 限三選一
+    - 驗證：摘要 80–800 字（含【新聞摘要】+【分析解讀】結構化格式）、sentiment 限三選一
     - LLM 失敗時：不修改 event（`ai_summary = None`），不中斷整體更新
-- [ ] T036 建立 `tests/unit/test_summarization_quota.py`：測試每日 50 次配額控制（第 51 次拋出 `LLMQuotaExceededError`）、測試日期重置邏輯；mock GeminiClient
-- [ ] T037 [P] 建立 `tests/fixtures/sample_gemini_response.json`：含 3 筆事件摘要的完整 JSON 回應樣本
+- [x] T036 建立 `tests/unit/test_summarization_quota.py`：測試每日 50 次配額控制（第 51 次拋出 `LLMQuotaExceededError`）、測試日期重置邏輯；mock GeminiClient
+- [x] T037 [P] 建立 `tests/fixtures/sample_gemini_response.json`：含 3 筆事件摘要的完整 JSON 回應樣本
 
 **Checkpoint F**: `pytest tests/unit/test_financial_calculator.py tests/unit/test_summarization_quota.py` 全綠；計算邏輯通過所有邊界條件
 
@@ -179,42 +178,46 @@
 
 ### G-1: Service Layer (先備)
 
-- [ ] T038 建立 `src/midas/services/interfaces.py`：所有 Service ABCs（`IWatchlistService`, `IEventService`, `IFinancialService`, `IMarketService`, `IUpdateService`，依 `contracts/service-interfaces.md`）
-- [ ] T039 [P] 建立 `src/midas/services/watchlist_service.py`：`WatchlistService`，實作 `IWatchlistService`，注入 `ITrackedStockRepository` + `IMarketAgent`：
+- [x] T038 建立 `src/midas/services/interfaces.py`：所有 Service ABCs（`IWatchlistService`, `IEventService`, `IFinancialService`, `IMarketService`, `IUpdateService`，依 `contracts/service-interfaces.md`）
+- [x] T039 [P] 建立 `src/midas/services/watchlist_service.py`：`WatchlistService`，實作 `IWatchlistService`，注入 `ITrackedStockRepository` + `IMarketAgent`：
   - `add`：驗證 4–6 碼純數字 → 呼叫 `IMarketAgent.get_stock_info(symbol)` 取公司名 → TrackedStockRepo.add()；若已達 30 檔拋出 `WatchlistLimitError`（不直接依賴 FinMindClient）
   - `remove`：TrackedStockRepo.remove()
   - `update_memo`：驗證 ≤ 500 字 → TrackedStockRepo.update_memo()
   - `search`：TrackedStockRepo.search_by_symbol_or_name()
-- [ ] T040 [P] 建立 `src/midas/services/event_service.py`：`EventService`，實作 `IEventService`：`get_today_events()` 回傳已按 `(event_type_priority ASC, occurred_at DESC)` 排序的列表（職責說明：EventService 負責單一追蹤股的事件內部排序規則 FR-027；跨股票分組由 DashboardViewModel T044 負責）
-- [ ] T041 [P] 建立 `src/midas/services/financial_service.py`：`FinancialService`，實作 `IFinancialService`：`get_metrics()` 回傳 `dict[MetricType, list[FinancialMetric]]`（最舊到最新）
-- [ ] T042 [P] 建立 `src/midas/services/market_service.py`：`MarketService`，實作 `IMarketService`：`get_today_overview()` 回傳最新 MarketOverview 或 None
-- [ ] T043 建立 `tests/unit/test_watchlist_service.py`：測試 CRUD、30 檔上限（第 31 筆拋 WatchlistLimitError）、備忘 501 字拋 ValueError、搜尋篩選；全 mock ITrackedStockRepository + mock IMarketAgent（`get_stock_info` 回傳假資料）
+- [x] T040 [P] 建立 `src/midas/services/event_service.py`：`EventService`，實作 `IEventService`：`get_today_events()` 回傳已按 `(event_type_priority ASC, occurred_at DESC)` 排序的列表（職責說明：EventService 負責單一追蹤股的事件內部排序規則 FR-027；跨股票分組由 DashboardViewModel T044 負責）
+- [x] T041 [P] 建立 `src/midas/services/financial_service.py`：`FinancialService`，實作 `IFinancialService`：`get_metrics()` 回傳 `dict[MetricType, list[FinancialMetric]]`（最舊到最新）
+- [x] T042 [P] 建立 `src/midas/services/market_service.py`：`MarketService`，實作 `IMarketService`：`get_today_overview()` 回傳最新 MarketOverview 或 None
+- [x] T043 建立 `tests/unit/test_watchlist_service.py`：測試 CRUD、30 檔上限（第 31 筆拋 WatchlistLimitError）、備忘 501 字拋 ValueError、搜尋篩選；全 mock ITrackedStockRepository + mock IMarketAgent（`get_stock_info` 回傳假資料）
 
 ### G-2: ViewModels
 
-- [ ] T044 [P] 建立 `src/midas/viewmodels/dashboard_vm.py`：`DashboardViewModel`，注入 `IMarketService` + `IEventService` + `IWatchlistService`：
+- [x] T044 [P] 建立 `src/midas/viewmodels/dashboard_vm.py`：`DashboardViewModel`，注入 `IMarketService` + `IEventService` + `IWatchlistService`：
   - `get_today_events()` → 有事件的追蹤股在上，無事件的淡色在下（分組邏輯在 ViewModel；每股事件清單直接使用 EventService 回傳的已排序列表，ViewModel 不重複排序）
   - `get_market_overview()` → MarketOverview or None
   - `get_last_update_timestamp()` → str (YYYY-MM-DD HH:MM 更新)
-- [ ] T045 [P] 建立 `src/midas/viewmodels/stock_detail_vm.py`：`StockDetailViewModel`，注入 `IEventService` + `IFinancialService`：
+- [x] T045 [P] 建立 `src/midas/viewmodels/stock_detail_vm.py`：`StockDetailViewModel`，注入 `IEventService` + `IFinancialService`：
   - `load_events(symbol, date)` → `list[MarketEvent]`（依 priority 排序）
   - `load_metrics(symbol)` → `dict[str, list[FinancialMetric]]`（12 季，最舊到最新）
-- [ ] T046 [P] 建立 `src/midas/viewmodels/watchlist_vm.py`：`WatchlistViewModel`，注入 `IWatchlistService`：包裝 add/remove/update_memo/search 呼叫
+- [x] T046 [P] 建立 `src/midas/viewmodels/watchlist_vm.py`：`WatchlistViewModel`，注入 `IWatchlistService`：包裝 add/remove/update_memo/search 呼叫
 
 ### G-3: UI Components
 
-- [ ] T047 [P] 建立 `src/midas/ui/components/market_overview_card.py`：`MarketOverviewCard(ctk.CTkFrame)`，顯示加權指數、漲跌幅、成交量 vs 五日均量、前五大漲跌產業、三大法人；接受 `MarketOverview | None`（None 時顯示「暫無資料」）
-- [ ] T048 [P] 建立 `src/midas/ui/components/event_list_item.py`：`EventListItem(ctk.CTkFrame)`，顯示公司名、股票代號、事件類型標籤（色彩區分）、發生時間、AI 摘要一行（≤50 字）；點擊觸發 `on_click(symbol)` callback
-- [ ] T049 [P] 建立 `src/midas/ui/components/stock_event_card.py`：`StockEventCard(ctk.CTkFrame)`，顯示事件標題、分類標籤、AI 摘要（100–200 字）、語意傾向標籤（三色）、來源名稱 + fetched_at、「查看原文」按鈕（`webbrowser.open(url)`）、免責聲明文字（固定顯示）
-- [ ] T050 [P] 建立 `src/midas/ui/components/financial_metric_row.py`：`FinancialMetricRow(ctk.CTkFrame)`，顯示指標名稱、12 季數值表格、方向標示（↑↓→ 含顏色）、來源 + 更新時間；`is_unreported=True` 時顯示「尚未揭露」
+- [x] T047 [P] 建立 `src/midas/ui/components/market_overview_card.py`：`MarketOverviewCard(ctk.CTkFrame)`，顯示加權指數、漲跌幅、成交量 vs 五日均量、前五大漲跌產業、三大法人；接受 `MarketOverview | None`（None 時顯示「暫無資料」）
+- [x] T048 [P] 建立 `src/midas/ui/components/event_list_item.py`：`EventListItem(ctk.CTkFrame)`，顯示公司名、股票代號、事件類型標籤（色彩區分）、發生時間、AI 摘要一行（≤50 字）；點擊觸發 `on_click(symbol)` callback
+- [x] T049 [P] 建立 `src/midas/ui/components/stock_event_card.py`：`StockEventCard(ctk.CTkFrame)`，顯示事件標題、分類標籤、AI 摘要（結構化格式【新聞摘要】+【分析解讀】，以 CTkTextbox 顯示）、語意傾向標籤（三色）、來源名稱 + occurred_at（報導發布時間）、「查看原文」按鈕（`webbrowser.open(url)`）、免責聲明文字（固定顯示）、「🔄 重新分析」按鈕（AI 完成後顯示）、分析期間 CTkProgressBar 動畫
+- [x] T050 [P] 建立 `src/midas/ui/components/financial_metric_row.py`：`FinancialMetricRow(ctk.CTkFrame)`，顯示指標名稱、12 季數值表格、方向標示（↑↓→ 含顏色）、來源 + 更新時間；`is_unreported=True` 時顯示「尚未揭露」
 
 ### G-4: Page Implementations [US-01 ~ US-05]
 
-- [ ] T051 [US1] [US4] 完整實作 `src/midas/ui/pages/dashboard_page.py`：注入 `DashboardViewModel`；`load()` 方法清空並重建 `MarketOverviewCard` + `EventListItem` 清單；事件清單依 ViewModel 回傳順序渲染；無事件時顯示「今日無重要事件」；點選 EventListItem → `controller.show_frame(StockDetailPage, symbol=symbol)`
-- [ ] T052 [US2] [US3] 完整實作 `src/midas/ui/pages/stock_detail_page.py`：含「事件」+ 「財務」兩個 CTkTabview；`load(symbol)` 呼叫 ViewModel；事件分頁渲染 `StockEventCard` 列表；財務分頁渲染 `FinancialMetricRow` 列表；無事件時顯示「今日無公告或事件」
-- [ ] T053 [US4] 完整實作 `src/midas/ui/pages/watchlist_page.py`：追蹤股清單 + 新增輸入框（4–6 碼驗證）+ 刪除按鈕（含確認對話框）+ 備忘編輯框；即時搜尋篩選；達 30 檔顯示「已達上限（30 檔）」
-- [ ] T054 [US5] 完整實作 `src/midas/ui/pages/task_center_page.py`：顯示 `UpdateJob` 歷史列表（triggered_at、status、completed_steps/total_steps、llm_calls_made）；「手動更新」按鈕（呼叫 `UpdateService.start_background_update()`）
-- [ ] T055 完整實作 `src/midas/ui/pages/settings_page.py`：FinMind Token 輸入欄（儲存至 `app_settings`）、Gemini API Key 輸入欄（儲存至 `app_settings`）、深色/亮色切換、「清除快取」按鈕（清空 `market_events` + `financial_metrics`）
+- [x] T051 [US1] [US4] 完整實作 `src/midas/ui/pages/dashboard_page.py`：注入 `DashboardViewModel`；`load()` 方法清空並重建 `MarketOverviewCard` + `EventListItem` 清單；事件清單依 ViewModel 回傳順序渲染；無事件時顯示「今日無重要事件」；點選 EventListItem → `controller.show_frame(StockDetailPage, symbol=symbol)`
+- [x] T052 [US2] [US3] 完整實作 `src/midas/ui/pages/stock_detail_page.py`：含「事件」+ 「財務」兩個 CTkTabview；`load(symbol)` 呼叫 ViewModel；事件分頁渲染 `StockEventCard` 列表；財務分頁渲染 `FinancialMetricRow` 列表；無事件時顯示「今日無公告或事件」
+- [x] T053 [US4] 完整實作 `src/midas/ui/pages/watchlist_page.py`：追蹤股清單 + 新增輸入框（4–6 碼驗證）+ 刪除按鈕（含確認對話框）+ 備忘編輯框；即時搜尋篩選；達 30 檔顯示「已達上限（30 檔）」
+- [ ] T054 [US5] 建立 `src/midas/ui/pages/api_monitor_page.py`：`ApiMonitorPage(ctk.CTkFrame)`，顯示 API 配額指標：
+  - Gemini 卡片：今日已用 / 50 次、進度条、剩餘次數、狀態標示（正常/警告/已達上限）
+  - FinMind 卡片：Token 狀態（已設定 ✓ / 未設定 ✗）、本輪請求數 / 800、進度条
+  - 上次更新卡片：triggered_at、completed_steps/total_steps、狀態
+  - 【手動更新】按鈕（呼叫 `UpdateService.start_background_update()`）、【重新整理】按鈕
+- [x] T055 完整實作 `src/midas/ui/pages/settings_page.py`：FinMind Token 輸入欄（儲存至 `app_settings`）、Gemini API Key 輸入欄（儲存至 `app_settings`）、深色/亮色切換、「清除快取」按鈕（清空 `market_events` + `financial_metrics`）
 
 **Checkpoint G**: 以 `scripts/load_fixtures.py` 載入假資料後，`python main.py` 可在首頁看到事件清單、點進個股詳情看到事件 + 財務分頁、在追蹤清單頁新增/刪除股票
 
@@ -227,11 +230,11 @@
 **對應**: US-05
 **預估**: 2 天
 
-- [ ] T056 建立 `src/midas/tasks/background_worker.py`：`BackgroundWorker`，管理 `threading.Thread(daemon=True)` + `queue.Queue`：
+- [x] T056 建立 `src/midas/tasks/background_worker.py`：`BackgroundWorker`，管理 `threading.Thread(daemon=True)` + `queue.Queue`：
   - `start(task_fn: Callable, *args)` → 啟動背景執行緒執行 `task_fn`
   - `is_running() -> bool`
   - worker thread 捕獲未預期例外時 `put(("update_error", str(e)))`；正常完成由 Orchestrator Step 5 的 `put(("update_complete", job))` 負責（BackgroundWorker 不發送 `("done", None)` 訊號）
-- [ ] T057 建立 `src/midas/agents/orchestrator.py`：`Orchestrator`，實作 5 步驟更新管線（依 plan.md Data Flow）：
+- [x] T057 建立 `src/midas/agents/orchestrator.py`：`Orchestrator`，實作 5 步驟更新管線（依 plan.md Data Flow）：
   - Step 1：`MarketAgent.fetch_overview(today)` → `MarketOverviewRepo.upsert()`
   - Step 2：for each symbol → `AnnouncementAgent.fetch_announcements()` → `MarketEventRepo.upsert_many()`
   - Step 3：for each symbol（快取過期）→ `FinancialAgent.fetch_and_calculate()` → `FinancialMetricRepo.upsert_many()`
@@ -239,20 +242,20 @@
   - Step 5：`UpdateJobRepo.complete()` + `queue.put(("update_complete", update_job))`
   - 每步驟完成：`queue.put(("progress", {"step": n, "total": N, "label": label}))`
   - 任意步驟 exception：`UpdateJobRepo.fail(error_msg)` + `queue.put(("update_error", msg))`
-- [ ] T058 建立 `src/midas/agents/market_agent.py`：`MarketAgent`，實作 `IMarketAgent`：
+- [x] T058 建立 `src/midas/agents/market_agent.py`：`MarketAgent`，實作 `IMarketAgent`：
   - `fetch_overview(date: str) -> MarketOverview`：呼叫 FinMindClient 取大盤指數 + 成交量 + 三大法人 + 類股排行，組合為 `MarketOverview` dataclass
   - `get_stock_info(symbol: str) -> dict`：呼叫 `FinMindClient.get_stock_info(symbol)` 取公司名稱與產業，回傳 `{'symbol': ..., 'company_name': ..., 'industry': ...}`（供 WatchlistService 使用）
-- [ ] T059 建立 `src/midas/services/update_service.py`：`UpdateService`，實作 `IUpdateService`：
+- [x] T059 建立 `src/midas/services/update_service.py`：`UpdateService`，實作 `IUpdateService`：
   - `check_needs_update() -> bool`：讀 `app_settings.last_update_date`；若今日 >= 15:00 且 `last_update_date != today` → True；非交易日（週六/週日或假日，以 `HolidayCalendar.is_trading_day(today)` 判斷，見 T059a）→ 直接回傳 False
   - `start_background_update(on_progress, on_complete, on_error)`：呼叫 `BackgroundWorker.start(orchestrator.run, symbols)`，callback 透過 queue 傳遞
-- [ ] T059a 建立 `src/midas/utils/holiday_calendar.py`：`HolidayCalendar`，提供 `is_trading_day(date: str) -> bool`：
+- [x] T059a 建立 `src/midas/utils/holiday_calendar.py`：`HolidayCalendar`，提供 `is_trading_day(date: str) -> bool`：
   - 啟動時以 `requests.get` 從 TWSE OpenAPI（`https://opendata.twse.com.tw/v1/holidaySchedule/holidaySchedule`）取得當年假日清單，存入 `_holiday_set: set[str]`（格式 YYYY-MM-DD）；API 失敗時 `_holiday_set = set()`（保守策略：清單不可得時不阻擋更新）
   - `is_trading_day()` 回傳 False 情況：週六、週日、或日期在 `_holiday_set` 中
-- [ ] T060 在 `src/midas/app.py` 完整實作 `_check_queue()` 輪詢：處理 `("progress", ...)` → `StatusBar.update_progress()`；`("update_complete", job)` → `DashboardPage.load()` + `StatusBar.show_ready()`；`("update_error", msg)` → `StatusBar.show_error()`
-- [ ] T061 在 `App.__init__()` 末尾：
+- [x] T060 在 `src/midas/app.py` 完整實作 `_check_queue()` 輪詢：處理 `("progress", ...)` → `StatusBar.update_progress()`；`("update_complete", job)` → `DashboardPage.load()` + `StatusBar.show_ready()`；`("update_error", msg)` → `StatusBar.show_error()`
+- [x] T061 在 `App.__init__()` 末尾：
   - 將 `StatusBar` 的 retry 按鈕 `command` 設為 `lambda: self._start_update()`（`_start_update` 為呼叫 `UpdateService.start_background_update(...)` 的內部方法，初次啟動與重試共用相同 callbacks）
   - 呼叫 `UpdateService.check_needs_update()`；若 True 則 `self._start_update()`
-- [ ] T062 建立 `tests/unit/test_update_orchestrator.py`：測試 Orchestrator 5 步驟流程控制（全 Mock Agents + Repos）；測試 Step 2/3/4 失敗時 UpdateJob.status = 'partial'/'failed'；測試 queue 訊息格式正確
+- [x] T062 建立 `tests/unit/test_update_orchestrator.py`：測試 Orchestrator 5 步驟流程控制（全 Mock Agents + Repos）；測試 Step 2/3/4 失敗時 UpdateJob.status = 'partial'/'failed'；測試 queue 訊息格式正確
 
 **Checkpoint H**: 啟動應用、等待 15:00 後（或修改 `last_update_date` 為昨天觸發更新）→ StatusBar 顯示進度 `正在更新… 1/5`、更新完成後 `首頁` 自動刷新、主介面在更新期間可正常切換頁面
 
@@ -266,8 +269,8 @@
 
 ### I-1: 整合測試與驗收
 
-- [ ] T063 [P] 建立 `scripts/load_fixtures.py`：插入 3 筆 `tracked_stocks`、每股 3–5 筆 `market_events`（含各 EventType）、每股 12 季 `financial_metrics`、1 筆 `market_overviews`；供本機手動驗收使用
-- [ ] T064 [P] 建立 `scripts/reset_db.py`：刪除 `%APPDATA%\Midas\midas.db` 並重建空白 DB
+- [x] T063 [P] 建立 `scripts/load_fixtures.py`：插入 3 筆 `tracked_stocks`、每股 3–5 筆 `market_events`（含各 EventType）、每股 12 季 `financial_metrics`、1 筆 `market_overviews`；供本機手動驗收使用
+- [x] T064 [P] 建立 `scripts/reset_db.py`：刪除 `%APPDATA%\Midas\midas.db` 並重建空白 DB
 - [ ] T065 [US1] 手動驗收 US-01 接受情境全部 5 項（依 spec.md Acceptance Scenarios）；記錄驗收結果於 `specs/001-midas-mvp/checklists/acceptance-us01.md`
 - [ ] T066 [US2] 手動驗收 US-02 接受情境全部 5 項；記錄於 `specs/001-midas-mvp/checklists/acceptance-us02.md`
 - [ ] T067 [US3] 手動驗收 US-03 接受情境全部 5 項；記錄於 `specs/001-midas-mvp/checklists/acceptance-us03.md`
@@ -293,8 +296,8 @@
 
 ### I-4: 打包
 
-- [ ] T072 建立 `build.spec`：PyInstaller `--onedir` 設定（非 `--onefile`），含 `datas` 設定（customtkinter 資源檔）、`hiddenimports`、`name = "Midas"`、`icon = assets/icon.ico`
-- [ ] T073 執行 `pyinstaller build.spec` → 驗證 `dist/Midas/Midas.exe` 可在**未安裝 Python** 的環境啟動、顯示主視窗、DB 建立於正確路徑 `%APPDATA%\Midas\midas.db`
+- [x] T072 建立 `build.spec`：PyInstaller `--onedir` 設定（非 `--onefile`），含 `datas` 設定（customtkinter 資源檔）、`hiddenimports`、`name = "Midas"`、`icon = assets/icon.ico`
+- [x] T073 執行 `pyinstaller build.spec` → 驗證 `dist/Midas/Midas.exe` 可在**未安裝 Python** 的環境啟動、顯示主視窗、DB 建立於正確路徑 `%APPDATA%\Midas\midas.db`
 
 **Checkpoint I**: 所有 US-01 ~ US-05 驗收清單全綠；`pytest tests/unit/` 全綠（0 failures）；打包後 Midas.exe 冷啟動 < 3 秒
 
@@ -309,7 +312,7 @@ Phase A（專案初始化）
     ├─→ Phase B（GUI 骨架）
     └─→ Phase C（資料層）
               ├─→ Phase D（FinMind）
-              ├─→ Phase E（MOPS）
+              ├─→ Phase E（FinMind 新聞）
               │         └─┐
               │    Phase F（計算 + 摘要）← Phase D + E
               │         └─┐
@@ -336,7 +339,7 @@ Phase A（專案初始化）
 
 **Phase C 完成後可同時進行**：
 - Phase D（FinMind）
-- Phase E（MOPS）
+- Phase E（FinMind 新聞整合）
 
 **Phase D + E 完成後**：
 - Phase F（計算 + 摘要）
@@ -376,7 +379,7 @@ Day 2 下午:
 1. **Phase A**（必要）
 2. **Phase B**（必要，骨架）
 3. **Phase C**（必要，持久化）
-4. **Phase E**（MOPS 事件）+ **Phase G-1/G-2/G-3/G-4 T053**（WatchlistPage）→ **US-04 完成**
+4. **Phase E**（FinMind 新聞整合）+ **Phase G-1/G-2/G-3/G-4 T053**（WatchlistPage）→ **US-04 完成**
 5. **Phase G-4 T051**（DashboardPage，搭配 fixtures） → **US-01 基本驗收可過**
 6. **Phase G-4 T052**（StockDetailPage 事件 Tab） → **US-02 完成**
 7. **Phase F-1**（財務計算）+ **Phase D**（FinMind）+ **Phase G-4 T052 財務 Tab** → **US-03 完成**
@@ -395,7 +398,7 @@ Day 2 下午:
 | B 骨架 | T006–T013 (8) | 1.0 | — |
 | C 資料層 | T014–T023 + T014a (11) | 1.5 | — |
 | D FinMind | T024–T026 (3) | 1.5 | US-01, US-03, US-05 |
-| E MOPS | T027a–T030 (5) | 1.5 | US-01, US-02 |
+| E FinMind 新聞 | T027a–T030 (5) | 1.5 | US-01, US-02 |
 | F 分析摘要 | T031–T037 + T033a (8) | 2.0 | US-02, US-03 |
 | G 核心頁面 | T038–T055 (18) | 3.0 | US-01~US-04 |
 | H 背景更新 | T056–T062 (7) | 2.0 | US-05 |

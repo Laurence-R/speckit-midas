@@ -43,10 +43,10 @@ CREATE TABLE market_events (
     occurred_at             DATETIME NOT NULL,  -- 事件原始發生時間
     title                   TEXT    NOT NULL,   -- 公告標題
     source_url              TEXT    NOT NULL,   -- 原始來源 URL（必填，不可空）
-    source_name             TEXT    NOT NULL,   -- 資料來源名稱 e.g. '公開資訊觀測站'
-    ai_summary              TEXT,               -- 100–200 字摘要（可 NULL，代表尚未生成）
+    source_name             TEXT    NOT NULL,   -- 資料來源名稱 e.g. 'FinMind 新聞'
+    ai_summary              TEXT,               -- 80–800 字摘要（格式：【新聞摘要】+【分析解讀】），可 NULL 代表尚未生成
     ai_summary_generated_at DATETIME,           -- LLM 生成時間
-    ai_model                TEXT,               -- e.g. 'gemini-2.5-flash-lite'
+    ai_model                TEXT,               -- e.g. 'gemini-3.5-flash'
     sentiment               TEXT,               -- 'positive'|'neutral'|'negative'|NULL
     disclaimer              TEXT    NOT NULL DEFAULT '此為 AI 摘要，僅供參考，不構成投資建議。',
     fetched_at              DATETIME NOT NULL,  -- 本機抓取時間（可溯源）
@@ -122,7 +122,7 @@ CREATE TABLE market_overviews (
     taiex_change_pct REAL    NOT NULL,         -- 漲跌幅（%）
     volume_b         REAL    NOT NULL,         -- 成交量（億元）
     volume_5d_avg_b  REAL,                     -- 五日均量（億元），可 NULL
-    sector_rankings  TEXT    NOT NULL,         -- JSON: [{rank, name, change_pct, direction}]
+    sector_rankings  TEXT    NOT NULL,         -- JSON: [{rank, name, change_pct, direction}]  — 目前為空陣列 []（TWSE 來源已移除）
     institutional    TEXT    NOT NULL,         -- JSON: {foreign_net_b, trust_net_b, dealer_net_b}
     source_name      TEXT    NOT NULL,         -- e.g. 'FinMind'
     fetched_at       DATETIME NOT NULL
@@ -184,7 +184,7 @@ app_settings           ──KV 儲存── 全域設定
 | 資料表 | 有效期 | 重新抓取條件 |
 |-------|-------|------------|
 | `market_events` | 當日收盤後至隔日 09:00 | `event_date != today OR fetched_at < today 09:00` |
-| `financial_metrics` | 7 天 | `fetched_at < NOW() - 7 days` |
+| `financial_metrics` | **無快取**，每次盤後更新強制重抓 | 每次 Orchestrator Step 3 均執行 |
 | `market_overviews` | 當日收盤後至隔日 09:00 | `trading_date != today` |
 | `app_settings` | 永久 | 使用者手動修改 |
 
@@ -224,14 +224,15 @@ class MarketEvent:
     symbol: str
     event_date: str             # YYYY-MM-DD
     event_type: EventType
-    occurred_at: datetime
+    occurred_at: datetime       # 報導真實發布時間（來自 FinMind API date 欄位）
     title: str
     source_url: str             # MUST NOT be empty
     source_name: str
     fetched_at: datetime
-    ai_summary: Optional[str] = None
+    description: str = ""       # 報導正文（記憶體暫存，不寫入 DB）
+    ai_summary: Optional[str] = None  # 80–800 字，【新聞摘要】+【分析解讀】格式
     ai_summary_generated_at: Optional[datetime] = None
-    ai_model: Optional[str] = None
+    ai_model: Optional[str] = None    # e.g. 'gemini-3.5-flash'
     sentiment: Optional[Sentiment] = None
     disclaimer: str = "此為 AI 摘要，僅供參考，不構成投資建議。"
 ```

@@ -80,13 +80,14 @@
 
 ## R-06 Gemini API 摘要策略
 
-**Decision**: `gemini-2.5-flash-lite`，每股批次一次呼叫（合併當日所有事件）
+**Decision**: `gemini-3.5-flash`，每股批次一次呼叫（合併當日所有事件）
 
 **Findings**:
-- Free tier: 15 req/min，500,000 tokens/day
-- 單次摘要成本：約 $0.000085（500 字公告 → 100–200 字摘要）
+- Free tier: 5 req/min，250K tokens/min, 20 req/day
+- 單次摘要成本：約 $0.000085（500 字公告 → 結構化【新聞摘要】+【分析解讀】摘要）
 - 30 檔股票每日上限 50 次呼叫 → 約 60–70% 有事件的股票能取得摘要
-- System prompt MUST 明確限制角色：禁止輸出買賣建議，只做摘要與語意標記
+- System prompt 以長期投資視角分析，輸出固定【新聞摘要】+【分析解讀】①②③ 格式；禁止買賣建議
+- 摘要驗證範圍：80–800 字（由程式碼層驗證，非 DB 約束）
 - 每次呼叫後記錄 `usage_metadata.total_token_count` 至 UpdateJob
 
 **Batching strategy**: 每股票一次呼叫，將當日所有事件文字合併傳入，輸出 JSON 格式（含各事件摘要 + sentiment）
@@ -109,6 +110,6 @@
 | 背景通訊 | queue.Queue + after() polling | Thread-safe、無需 asyncio |
 | 打包 | PyInstaller --onedir | 冷啟動快、Defender 友善 |
 | FinMind | SDK + Token，7 天快取 | 免費方案配額管理 |
-| MOPS | requests + BS4，500ms 間隔 | 無需 Selenium，足夠穩定 |
-| LLM | gemini-2.5-flash-lite，每股批次 | 成本最低、速度快 |
+| MOPS | ~~requests + BS4~~ → 改用 FinMind TaiwanStockNews | FinMind 已提供新聞 API，無需爬蟲 |
+| LLM | gemini-3.5-flash，每股批次 | 效能與成本平衡 |
 | DB | 原生 sqlite3，PRAGMA user_version | 零依賴、夠用 |

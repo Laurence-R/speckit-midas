@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "date": "2026-05-19",
+      "stock_id": "Y9999",
+      "close": 21000.0,
+      "Trading_Volume": 350000000000,
+      "foreign_investor_buy": 50000000000,
+      "foreign_investor_sell": 30000000000,
+      "foreign_investor_net": 20000000000,
+      "investment_trust_buy": 5000000000,
+      "investment_trust_sell": 7000000000,
+      "investment_trust_net": -2000000000,
+      "dealer_net": 500000000
+    }
+  ],
+  "sector_data": [
+    {"rank": 1, "name": "半導體", "change_pct": 1.5, "direction": "up"},
+    {"rank": 2, "name": "電子零組件", "change_pct": 0.8, "direction": "up"},
+    {"rank": 3, "name": "金融", "change_pct": -0.3, "direction": "down"}
+  ]
+}

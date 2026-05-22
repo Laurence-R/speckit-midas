@@ -1,18 +1,18 @@
 # Implementation Plan: Midas — 台股盤後投研桌面應用 MVP
 
-**Branch**: `001-midas-mvp` | **Date**: 2026-05-19 | **Spec**: [spec.md](spec.md)
+**Branch**: `001-midas-mvp` | **Date**: 2026-05-19 → MVP Complete 2026-05-22 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/001-midas-mvp/spec.md`
 
 ## Summary
 
-Midas 是以 Multi-Agent 架構驅動的台股盤後投研桌面應用（Windows 10/11）。MVP 以 CustomTkinter 為 GUI 框架，FinMind（免費方案）＋ MOPS 爬蟲為資料來源，Gemini 2.5 Flash Lite 為摘要 LLM，SQLite 為本機儲存。應用啟動時自動偵測盤後狀態，以背景執行緒觸發 code-based 多 Agent 更新管線，主畫面不阻塞。提供盤後摘要看板、個股事件詳情、財務健康快覽、追蹤清單管理六大 MVP 功能。
+Midas 是以 Multi-Agent 架構驅動的台股盤後投研桌面應用（Windows 10/11）。MVP 以 CustomTkinter 為 GUI 框架，FinMind（免費方案）為全面資料來源（股價、財務、新聞公告、交易日、三大法人），Gemini （`gemini-3.5-flash`）為摘要 LLM，SQLite 為本機儲存。應用啟動時自動偵測盤後狀態，以背景執行緒觸發 code-based 多 Agent 更新管線，主畫面不阻塞。提供盤後摘要看板、個股事件詳情、財務健康快覽、追蹤清單管理六大 MVP 功能。
 
 ## Technical Context
 
 **Language/Version**: Python 3.12
 
-**Primary Dependencies**: customtkinter, FinMind（finmindapi），requests, beautifulsoup4, google-generativeai, platformdirs, pytest, pytest-mock, PyInstaller
+**Primary Dependencies**: customtkinter, FinMind（finmindapi），requests, google-generativeai, platformdirs, pytest, pytest-mock, PyInstaller
 
 **Storage**: SQLite — `%APPDATA%\Midas\midas.db`（原生 `sqlite3`，`PRAGMA user_version = 1`）
 
@@ -34,7 +34,7 @@ Midas 是以 Multi-Agent 架構驅動的台股盤後投研桌面應用（Windows
 
 - [x] **Traceability Gate**: ✅ `market_events.source_url`、`fetched_at`；`financial_metrics.source_name`、`fetched_at`；`market_overviews.fetched_at` 均已設計。
 - [x] **AI Boundary Gate**: ✅ `ISummarizationAgent` 僅做摘要 + 語意標記；`disclaimer` 欄位寫入 DB；LLM system prompt 明確禁止數值判斷與買賣建議。
-- [x] **UI Decoupling Gate**: ✅ GUI 層僅呼叫 ViewModel；ViewModel 呼叫 Service；Service 呼叫 Repository / Agent；無從 UI 直接呼叫 FinMind / MOPS / Gemini。
+- [x] **UI Decoupling Gate**: ✅ GUI 層僅呼叫 ViewModel；ViewModel 呼叫 Service；Service 呼叫 Repository / Agent；無從 UI 直接呼叫 FinMind / Gemini。
 - [x] **MVP Scope Gate**: ✅ spec 的 Non-Goals 表格已標註 Phase 2/3；Future Considerations 標明 Extension Point，MVP 程式碼不實作。
 - [x] **Testability Gate**: ✅ `contracts/service-interfaces.md` 定義所有 Service / Agent / Repository ABC；所有實作可被 Mock 替換。
 - [x] **Fallback Gate**: ✅ `DataFetchError(retryable=True)` + UpdateJob 失敗狀態 + UI 顯示 retry 按鈕；離線時顯示最後 `fetched_at` 快取。
@@ -81,7 +81,7 @@ midas/
 │       │   │   ├── stock_detail_page.py   # US-02/03: 個股詳情（事件 + 財務 Tab）
 │       │   │   ├── watchlist_page.py      # US-04: 追蹤清單管理
 │       │   │   ├── settings_page.py       # 設定頁（API Key、主題切換）
-│       │   │   └── task_center_page.py    # 任務中心（更新歷史、手動重試）
+│       │   │   └── api_monitor_page.py    # API 監控（Gemini / FinMind 配額、手動更新觸發）
 │       │   └── components/
 │       │       ├── __init__.py
 │       │       ├── sidebar_nav.py          # 左側導航列
@@ -108,7 +108,7 @@ midas/
 │       │   ├── interfaces.py          # Agent ABCs
 │       │   ├── orchestrator.py        # Code-based 更新管線（非 LLM 驅動）
 │       │   ├── market_agent.py        # 抓取大盤概況
-│       │   ├── announcement_agent.py  # MOPS 公告抓取與分類
+│       │   ├── announcement_agent.py  # FinMind 新聞（TaiwanStockNews）抓取與分類
 │       │   ├── financial_agent.py     # FinMind 財務資料抓取與計算
 │       │   └── summarization_agent.py # Gemini 摘要生成（含配額控制）
 │       ├── repositories/
@@ -129,9 +129,9 @@ midas/
 │       │   └── update_job.py          # @dataclass UpdateJob
 │       ├── integrations/
 │       │   ├── __init__.py
-│       │   ├── finmind_client.py      # FinMind API 封裝（rate limit, retry, token 管理）
-│       │   ├── mops_client.py         # MOPS 爬蟲（requests + BS4）
-│       │   └── gemini_client.py       # Gemini API 封裝（token 計數, 配額追蹤）
+│       │   ├── finmind_client.py      # FinMind API 封裝（股價、財務、新聞、交易日、三大法人）
+│       │   ├── twse_client.py         # TWSE OpenAPI 封裝（市場指數、個股日行情）
+│       │   └── gemini_client.py       # Gemini API 封裝（gemini-3.5-flash，配額追蹤）
 │       └── tasks/
 │           ├── __init__.py
 │           └── background_worker.py   # threading.Thread + queue.Queue 管理器
@@ -146,12 +146,11 @@ midas/
     │   └── test_summarization_quota.py   # 每日 50 次配額控制
     ├── integration/
     │   ├── test_sqlite_repos.py           # Repository 對真實 SQLite 測試
-    │   ├── test_finmind_client.py         # 對真實 FinMind API（需 token，CI skip）
-    │   └── test_mops_client.py            # 對真實 MOPS（CI skip）
+    │   └── test_finmind_client.py         # 對真實 FinMind API（需 token，CI skip）
     └── fixtures/
         ├── sample_finmind_financial.json  # 財務報表假資料
         ├── sample_finmind_price.json      # 股價假資料
-        ├── sample_mops_announcement.html  # MOPS 頁面假 HTML
+        ├── sample_mops_announcement.html  # 舊版 MOPS 假 HTML（已不使用，保留供參考）
         └── sample_gemini_response.json    # Gemini API 假回應
 ```
 
@@ -170,7 +169,7 @@ Repository (market_event_repo, financial_metric_repo, ...)   ←→  SQLite DB
     ↑ 也被
 Agent (orchestrator, market_agent, announcement_agent, ...)
     ↓ 呼叫
-Integration (finmind_client, mops_client, gemini_client)  → External APIs
+Integration (finmind_client, twse_client, gemini_client)  → External APIs
     ↑
 BackgroundWorker (threading.Thread + queue.Queue)
     ↑ 啟動自
@@ -222,8 +221,8 @@ orchestrator.run(symbols=[...30 隻...])
   │    └─ MarketOverviewRepo.upsert()
   │
   ├─ Step 2: for each symbol:  AnnouncementAgent.fetch_announcements(symbol, today)
-  │    └─ MOPSClient.get_announcements(symbol, today)
-  │         → HTML 解析 → EventType 分類 → MarketEvent 列表
+  │    └─ FinMindClient.get_stock_news(symbol, today)
+  │         → TaiwanStockNews JSON → EventType 分類 → MarketEvent 列表
   │    └─ MarketEventRepo.upsert_many()
   │    └─ queue.put(("progress", {step, total, label}))
   │
@@ -237,7 +236,7 @@ orchestrator.run(symbols=[...30 隻...])
   │    └─ SummarizationAgent.summarize_events(symbol, events)
   │         └─ GeminiClient.generate(system_prompt, batch_text)
   │              → JSON {event_id: {summary, sentiment}} 
-  │         └─ 驗證：無買賣建議、符合 100–200 字
+  │         └─ 驗證：無買賣建議、符合 80–800 字（含【新聞摘要】+【分析解讀】結構化格式）
   │         └─ MarketEventRepo.upsert_many(updated events)
   │         └─ UpdateJobRepo.update_progress(llm_calls, tokens)
   │
@@ -292,46 +291,41 @@ class FinMindClient:
 
 **Dataset 請求估算**（30 檔，每日）：
 - MarketOverview: 3 次（指數、三大法人、類股）
-- Announcements: 30 次（MOPS，非 FinMind）
+- Announcements: 30 次（FinMind TaiwanStockNews，每股 1 次 REST 請求）
 - Financial（cache miss，估計 10 檔/日）: 5 datasets × 10 = 50 次
 - 合計估算：~83 次/日 ✅（遠低於 800 次上限）
 
-### MOPS Client
+### FinMind 新聞抓取（AnnouncementAgent）
 
 ```python
-class MOPSClient:
-    BASE_URL = "https://mops.twse.com.tw/mops/web"
-    REQUEST_INTERVAL = 0.5          # 500ms 間隔（避免 403）
-    TIMEOUT = 10                    # 秒
-    
-    # 公告類型判斷邏輯（根據頁面標題 / 代碼判斷 EventType）:
-    # - 含「財務報告」關鍵字 → financial_report
-    # - 含「法說會」關鍵字  → investor_conference
-    # - 重大訊息查詢頁結果  → material_news
-    # - 其他               → general_announcement
-    
-    # 失敗處理：
-    # 解析失敗 → 記錄 error，continue 下一支股票（不中斷整體更新）
+# FinMindClient.get_stock_news(symbol, date) 直接呼叫 REST API
+# endpoint: https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockNews
+# 回傳欄位：title, description, link, source, date, stock_id
+# EventType 分類根據 title 關鍵字：
+# - 含「財報/季報/盈餘/EPS」→ financial_report
+# - 含「法說/法人說明會」→ investor_conference
+# - 含「重大訊息/合併/收購」→ material_news
+# - 其他 → general_announcement
 ```
 
 ### Gemini Client
 
 ```python
 class GeminiClient:
-    MODEL = "gemini-2.5-flash-lite"
+    MODEL = "gemini-3.5-flash"
     DAILY_CALL_LIMIT = 50
     
-    # System prompt（必須包含）：
-    SYSTEM_PROMPT = """
-    你是台股投研助理。請針對以下公司公告進行摘要與語意分析。
-    規則：
-    1. 摘要限 100–200 字，使用繁體中文
-    2. 語意標籤限 positive / neutral / negative 三選一
-    3. 禁止輸出買進、賣出、持有等投資建議
-    4. 禁止進行任何數值計算或財務判斷
-    5. 僅做文字摘要與語氣分析
-    輸出格式：JSON {"events": [{"id": "...", "summary": "...", "sentiment": "..."}]}
-    """
+    # System prompt 要求以長期投資視角分析，固定輸出兩段格式：
+    # 【新聞摘要】：2–3 句概括事實
+    # 【分析解讀】：①事件性質 ②長期基本面 ③風險
+    # 規則：
+    # - sentiment 依「長期基本面」判斷，非短期股價情緒
+    # - 禁止買進 / 賣出 / 持有等投資建議
+    # - 禁止虛構數字，推測須標示「推測」或「不確定」
+    # 輸出：純 JSON（不含 Markdown code fence）
+    # {"events": [{"id": <int>, "summary": <str>, "sentiment": "positive|neutral|negative"}]}
+    
+    # 摘要驗證（_apply_summaries）：80 ≤ len(summary) ≤ 800
     
     # 配額控制：
     # 呼叫前：讀取 app_settings.llm_daily_calls
@@ -353,8 +347,8 @@ class GeminiClient:
 │  │  (180px)     │  ┌────────────────────────────────┐│  │
 │  │  • 首頁      │  │  DashboardPage  (預設)          ││  │
 │  │  • 追蹤清單  │  │  StockDetailPage                ││  │
-│  │  • 任務中心  │  │  WatchlistPage                  ││  │
-│  │  • 設定      │  │  TaskCenterPage                 ││  │
+│  │  • API 監控  │  │  WatchlistPage                  ││  │
+│  │  • 設定      │  │  ApiMonitorPage                 ││  │
 │  │              │  │  SettingsPage                   ││  │
 │  │              │  └────────────────────────────────┘│  │
 │  └──────────────┴────────────────────────────────────┘  │
@@ -369,7 +363,7 @@ class GeminiClient:
 | `DashboardPage` | `MarketOverviewCard` + `EventListItem` 列表 | `DashboardViewModel` | US-01 |
 | `StockDetailPage` | Tab: `StockEventCard` 列表 / `FinancialMetricRow` 列表 | `StockDetailViewModel` | US-02, US-03 |
 | `WatchlistPage` | 追蹤股清單 + 新增/刪除/備忘 | `WatchlistViewModel` | US-04 |
-| `TaskCenterPage` | UpdateJob 歷史、手動重試按鈕 | —（直接讀 UpdateJobRepo） | US-05 |
+| `ApiMonitorPage` | Gemini 每日配額進度、FinMind 本輪請求數、上次更新記錄、手動更新按鈕 | —（直接讀 GeminiClient + FinMindClient + UpdateJobRepo） | US-05 |
 | `SettingsPage` | API Key 輸入、主題切換、清除快取 | — | 設定 |
 
 ### 首頁事件清單排序規則（UI 層無需自行排序）
@@ -387,7 +381,7 @@ class GeminiClient:
 | 測試檔 | 測試對象 | Mock 對象 |
 |-------|---------|---------|
 | `test_financial_calculator.py` | `FinancialAgent._calculate_metrics()` | FinMindClient |
-| `test_event_classifier.py` | `AnnouncementAgent._classify_event()` | MOPSClient HTML |
+| `test_event_classifier.py` | `AnnouncementAgent._classify_event()` | FinMindClient（mock） |
 | `test_cache_strategy.py` | `FinancialMetricRepo.is_cache_valid()` | DB（in-memory SQLite） |
 | `test_update_orchestrator.py` | `Orchestrator.run()` 流程控制 | 所有 4 個 Agent |
 | `test_watchlist_service.py` | `WatchlistService` CRUD + 驗證 | TrackedStockRepo |
@@ -397,12 +391,11 @@ class GeminiClient:
 
 - `test_sqlite_repos.py`：對真實 in-memory SQLite 測試所有 repo CRUD
 - `test_finmind_client.py`：對真實 FinMind API（需設定 FINMIND_TOKEN）
-- `test_mops_client.py`：對真實 MOPS 頁面（需網路）
 
 ### Fixture 策略
 
 - `fixtures/sample_finmind_financial.json`：仿 FinMind API 回應格式（含 4 個 dataset）
-- `fixtures/sample_mops_announcement.html`：真實 MOPS HTML 截圖（匿名化）
+- `fixtures/sample_mops_announcement.html`：舊版 MOPS 假 HTML（已不使用，保留供參考）
 - `fixtures/sample_gemini_response.json`：含 events 摘要 JSON
 
 ### 打包前最低驗收標準
@@ -410,7 +403,7 @@ class GeminiClient:
 - [ ] `pytest tests/unit/` 全綠（0 failures）
 - [ ] 冷啟動至首頁顯示 < 3 秒（空 watchlist）
 - [ ] 新增 1 筆追蹤股 → 重啟 → 資料保留
-- [ ] 手動觸發更新（TaskCenterPage）→ 狀態列顯示進度 → 完成後首頁刷新
+- [ ] 手動觸發更新（ApiMonitorPage）→ 狀態列顯示進度 → 完成後首頁刷新
 - [ ] 關閉應用後 `midas.db` 存在於 `%APPDATA%\Midas\`
 
 ---

@@ -1,0 +1,58 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+lib/
+lib64/
+*.pyc
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# Database
+*.db
+*.sqlite3
+
+# PyInstaller
+dist/
+build/
+*.spec.bak
+
+# IDE
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+*.iml
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+
+# Local scripts output
+scripts/__pycache__/
