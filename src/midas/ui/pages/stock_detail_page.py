@@ -11,6 +11,7 @@ from midas.models.financial_metric import MetricType
 from midas.models.market_event import MarketEvent
 from midas.ui.components.financial_metric_row import FinancialMetricRow
 from midas.ui.components.stock_event_card import StockEventCard
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 from midas.viewmodels.stock_detail_vm import StockDetailViewModel
 
@@ -53,10 +54,20 @@ class StockDetailPage(ctk.CTkFrame):
             font=make_font(size=18, weight="bold"),
             text_color=palette["text_primary"],
         )
-        self._title.pack(anchor="w", padx=20, pady=(16, 8))
+        self._title.pack(anchor="w", padx=spacing("container_padding"), pady=(spacing("spacing_m"), spacing("spacing_s")))
 
-        self._tabview = ctk.CTkTabview(self)
-        self._tabview.pack(fill="both", expand=True, padx=20, pady=(0, 12))
+        self._tabview = ctk.CTkTabview(
+            self,
+            fg_color=palette["bg_secondary"],
+            segmented_button_selected_color=palette["accent"],
+            segmented_button_selected_hover_color=palette["interactive_hover"],
+            segmented_button_unselected_color=palette["bg_card"],
+            segmented_button_unselected_hover_color=palette["interactive_hover"],
+            text_color=palette["text_primary"],
+            border_width=1,
+            border_color=palette["border"],
+        )
+        self._tabview.pack(fill="both", expand=True, padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
         self._tabview.add(_TAB_EVENTS)
         self._tabview.add(_TAB_METRICS)
 
@@ -93,12 +104,15 @@ class StockDetailPage(ctk.CTkFrame):
                 text="暫無事件",
                 text_color=palette["text_secondary"],
                 font=make_font(size=13),
-            ).pack(pady=40)
+            ).pack(pady=spacing("spacing_l") * 2)
             return
 
         for evt in events:
             on_analyze = self._make_analyze_callback() if self._summarization_agent else None
-            StockEventCard(self._events_frame, event=evt, on_analyze=on_analyze).pack(fill="x", pady=4)
+            StockEventCard(self._events_frame, event=evt, on_analyze=on_analyze).pack(
+                fill="x",
+                pady=spacing("spacing_s") // 2,
+            )
 
     def _load_metrics(self, symbol: str) -> None:
         palette = get_palette()
@@ -110,7 +124,7 @@ class StockDetailPage(ctk.CTkFrame):
             rows = metrics_by_type.get(metric_type.value, [])
             FinancialMetricRow(
                 self._metrics_frame, metric_type=metric_type, metrics=rows,
-            ).pack(fill="x", pady=4)
+            ).pack(fill="x", pady=spacing("spacing_s") // 2)
 
     # ------------------------------------------------------------------
     # On-demand AI analysis

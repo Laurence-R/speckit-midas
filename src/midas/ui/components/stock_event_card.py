@@ -8,13 +8,9 @@ from typing import Callable
 import customtkinter as ctk
 
 from midas.models.market_event import MarketEvent, Sentiment
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 
-_SENTIMENT_COLORS: dict[Sentiment, str] = {
-    Sentiment.POSITIVE: "#16a34a",
-    Sentiment.NEUTRAL:  "#6b7280",
-    Sentiment.NEGATIVE: "#dc2626",
-}
 _SENTIMENT_LABELS: dict[Sentiment, str] = {
     Sentiment.POSITIVE: "正面",
     Sentiment.NEUTRAL:  "中性",
@@ -42,7 +38,12 @@ class StockEventCard(ctk.CTkFrame):
 
     def _build(self) -> None:
         palette = get_palette()
-        self.configure(fg_color=palette["bg_card"], corner_radius=8)
+        self.configure(
+            fg_color=palette["bg_card"],
+            corner_radius=8,
+            border_width=1,
+            border_color=palette["border"],
+        )
 
         # Title
         ctk.CTkLabel(
@@ -53,11 +54,11 @@ class StockEventCard(ctk.CTkFrame):
             wraplength=500,
             anchor="w",
             justify="left",
-        ).pack(fill="x", padx=12, pady=(10, 2))
+        ).pack(fill="x", padx=spacing("spacing_m"), pady=(spacing("spacing_m"), 2))
 
         # Badge row: event type + sentiment (added later when AI completes)
         self._badge_row = ctk.CTkFrame(self, fg_color="transparent")
-        self._badge_row.pack(fill="x", padx=12, pady=2)
+        self._badge_row.pack(fill="x", padx=spacing("spacing_m"), pady=2)
 
         ctk.CTkLabel(
             self._badge_row,
@@ -84,7 +85,7 @@ class StockEventCard(ctk.CTkFrame):
             text=f"來源：{self._event.source_name}  ·  {pub_time}",
             font=make_font(size=10),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=12, pady=(2, 0))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(2, 0))
 
         # View original button
         ctk.CTkButton(
@@ -93,7 +94,12 @@ class StockEventCard(ctk.CTkFrame):
             width=100,
             font=make_font(size=12),
             command=lambda: webbrowser.open(self._event.source_url),
-        ).pack(anchor="w", padx=12, pady=6)
+            fg_color=palette["bg_secondary"],
+            hover_color=palette["interactive_hover"],
+            border_width=1,
+            border_color=palette["border"],
+            text_color=palette["text_primary"],
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=spacing("spacing_s"))
 
         # Disclaimer
         ctk.CTkLabel(
@@ -101,7 +107,7 @@ class StockEventCard(ctk.CTkFrame):
             text=self._event.disclaimer,
             font=make_font(size=9),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=12, pady=(0, 8))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(0, spacing("spacing_m")))
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -110,7 +116,13 @@ class StockEventCard(ctk.CTkFrame):
     def _add_sentiment_badge(self, sentiment: Sentiment) -> None:
         if self._sentiment_badge is not None:
             self._sentiment_badge.destroy()
-        color = _SENTIMENT_COLORS.get(sentiment, "#6b7280")
+        palette = get_palette()
+        color_map = {
+            Sentiment.POSITIVE: palette["sentiment_positive"],
+            Sentiment.NEUTRAL: palette["sentiment_neutral"],
+            Sentiment.NEGATIVE: palette["sentiment_negative"],
+        }
+        color = color_map.get(sentiment, palette["sentiment_neutral"])
         self._sentiment_badge = ctk.CTkLabel(
             self._badge_row,
             text=_SENTIMENT_LABELS.get(sentiment, ""),
@@ -143,7 +155,7 @@ class StockEventCard(ctk.CTkFrame):
                     text_color=palette["text_secondary"],
                 )
                 btn.configure(command=lambda b=btn: self._start_analysis(b))
-                btn.pack(anchor="w", padx=12, pady=(2, 4))
+                btn.pack(anchor="w", padx=spacing("spacing_m"), pady=(2, spacing("spacing_s") // 2))
         elif self._on_analyze is not None:
             btn = ctk.CTkButton(
                 self._summary_area,
@@ -152,7 +164,7 @@ class StockEventCard(ctk.CTkFrame):
                 font=make_font(size=12),
             )
             btn.configure(command=lambda b=btn: self._start_analysis(b))
-            btn.pack(anchor="w", padx=12, pady=(6, 2))
+            btn.pack(anchor="w", padx=spacing("spacing_m"), pady=(spacing("spacing_s"), 2))
 
     def _render_summary_textbox(self, palette: dict) -> None:
         """Render ai_summary in a read-only CTkTextbox with bold 【】 section headers."""
@@ -184,7 +196,7 @@ class StockEventCard(ctk.CTkFrame):
             inner.tag_add("header", f"{line_num}.{col}", f"{line_num}.{col + len(match.group())}")
 
         box.configure(state="disabled")
-        box.pack(fill="x", padx=12, pady=(6, 2))
+        box.pack(fill="x", padx=spacing("spacing_m"), pady=(spacing("spacing_s"), 2))
 
     def _start_analysis(self, btn: ctk.CTkButton) -> None:
         """Replace summary area with a progress bar, then invoke the on_analyze callback."""
@@ -199,9 +211,9 @@ class StockEventCard(ctk.CTkFrame):
             text="✨ AI 分析中...",
             font=make_font(size=12),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=12, pady=(6, 2))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(spacing("spacing_s"), 2))
         bar = ctk.CTkProgressBar(self._summary_area, mode="indeterminate", width=300)
-        bar.pack(anchor="w", padx=12, pady=(0, 6))
+        bar.pack(anchor="w", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s")))
         bar.start()
 
         def on_done(updated_event: MarketEvent) -> None:

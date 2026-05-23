@@ -4,6 +4,7 @@ from __future__ import annotations
 import customtkinter as ctk
 
 from midas.models.financial_metric import Direction, FinancialMetric, MetricType
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 
 _DIRECTION_ARROWS: dict[Direction, str] = {
@@ -30,10 +31,15 @@ class FinancialMetricRow(ctk.CTkFrame):
 
     def _build(self) -> None:
         palette = get_palette()
-        self.configure(fg_color=palette["bg_secondary"], corner_radius=6)
+        self.configure(
+            fg_color=palette["bg_secondary"],
+            corner_radius=6,
+            border_width=1,
+            border_color=palette["border"],
+        )
 
         header = ctk.CTkFrame(self, fg_color="transparent")
-        header.pack(fill="x", padx=10, pady=(8, 2))
+        header.pack(fill="x", padx=spacing("spacing_m"), pady=(spacing("spacing_s"), 2))
 
         ctk.CTkLabel(
             header,
@@ -60,11 +66,11 @@ class FinancialMetricRow(ctk.CTkFrame):
             ).pack(side="right")
 
         values_frame = ctk.CTkFrame(self, fg_color="transparent")
-        values_frame.pack(fill="x", padx=10, pady=(2, 8))
+        values_frame.pack(fill="x", padx=spacing("spacing_m"), pady=(2, spacing("spacing_s")))
 
         for m in self._metrics:
-            cell = ctk.CTkFrame(values_frame, fg_color="transparent", width=70)
-            cell.pack(side="left", padx=2)
+            cell = ctk.CTkFrame(values_frame, fg_color="transparent", width=68)
+            cell.pack(side="left", padx=spacing("spacing_s") // 4)
             cell.pack_propagate(False)
 
             ctk.CTkLabel(

@@ -4,6 +4,7 @@ from __future__ import annotations
 import customtkinter as ctk
 
 from midas.models.market_overview import MarketOverview
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 
 
@@ -17,7 +18,12 @@ class MarketOverviewCard(ctk.CTkFrame):
 
     def _build(self) -> None:
         palette = get_palette()
-        self.configure(fg_color=palette["bg_card"], corner_radius=8)
+        self.configure(
+            fg_color=palette["bg_card"],
+            corner_radius=8,
+            border_width=1,
+            border_color=palette["border"],
+        )
 
         if self._overview is None:
             ctk.CTkLabel(
@@ -25,7 +31,7 @@ class MarketOverviewCard(ctk.CTkFrame):
                 text="暫無大盤資料",
                 font=make_font(size=12),
                 text_color=palette["text_secondary"],
-            ).pack(pady=20)
+            ).pack(pady=spacing("spacing_l"))
             return
 
         inst = self._overview.institutional or {}
@@ -47,7 +53,7 @@ class MarketOverviewCard(ctk.CTkFrame):
             text=f"{self._overview.taiex_close:,.2f}",
             font=make_font(size=22, weight="bold"),
             text_color=palette["text_primary"],
-        ).pack(anchor="w", padx=12)
+        ).pack(anchor="w", padx=spacing("spacing_m"))
 
         # Change / change pct
         chg = self._overview.taiex_change
@@ -59,7 +65,7 @@ class MarketOverviewCard(ctk.CTkFrame):
             text=f"{sign}{chg:,.2f}  ({sign}{pct:.2f}%)",
             font=make_font(size=12),
             text_color=chg_color,
-        ).pack(anchor="w", padx=12, pady=(0, 4))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s") // 2))
 
         # Volume
         vol_text = f"成交量 {self._overview.volume_b:,.0f} 億"
@@ -70,7 +76,7 @@ class MarketOverviewCard(ctk.CTkFrame):
             text=vol_text,
             font=make_font(size=11),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=12, pady=(0, 6))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s")))
 
         # Institutional flows
         inst_text = (
@@ -81,7 +87,7 @@ class MarketOverviewCard(ctk.CTkFrame):
             text=inst_text,
             font=make_font(size=11),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=12)
+        ).pack(anchor="w", padx=spacing("spacing_m"))
 
         # Sector rankings (top 5)
         sectors = self._overview.sector_rankings or []
@@ -91,7 +97,7 @@ class MarketOverviewCard(ctk.CTkFrame):
                 text="類股排行",
                 font=make_font(size=12, weight="bold"),
                 text_color=palette["text_primary"],
-            ).pack(anchor="w", padx=12, pady=(8, 2))
+            ).pack(anchor="w", padx=spacing("spacing_m"), pady=(spacing("spacing_s"), 2))
             for s in sectors[:5]:
                 name = s.get("name", "")
                 pct_s = s.get("change_pct", 0.0)
@@ -104,9 +110,9 @@ class MarketOverviewCard(ctk.CTkFrame):
                     text=f"{name}  {pct_s:+.2f}%",
                     text_color=color,
                     font=make_font(size=11),
-                ).pack(anchor="w", padx=20)
+                ).pack(anchor="w", padx=spacing("container_padding"))
 
-        ctk.CTkFrame(self, height=8, fg_color="transparent").pack()
+        ctk.CTkFrame(self, height=spacing("spacing_s"), fg_color="transparent").pack()
 
     def update_data(self, overview: MarketOverview | None) -> None:
         for w in self.winfo_children():

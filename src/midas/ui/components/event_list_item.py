@@ -7,6 +7,7 @@ import customtkinter as ctk
 
 from midas.models.market_event import EventType, MarketEvent
 from midas.models.tracked_stock import TrackedStock
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 
 _TYPE_LABELS: dict[EventType, str] = {
@@ -16,10 +17,10 @@ _TYPE_LABELS: dict[EventType, str] = {
     EventType.GENERAL_ANNOUNCEMENT: "一般公告",
 }
 _TYPE_COLORS: dict[EventType, str] = {
-    EventType.FINANCIAL_REPORT:     "#1565c0",
-    EventType.INVESTOR_CONFERENCE:  "#6a1b9a",
-    EventType.MATERIAL_NEWS:        "#b71c1c",
-    EventType.GENERAL_ANNOUNCEMENT: "#37474f",
+    EventType.FINANCIAL_REPORT:     "#0EA5E9",
+    EventType.INVESTOR_CONFERENCE:  "#6366F1",
+    EventType.MATERIAL_NEWS:        "#DC2626",
+    EventType.GENERAL_ANNOUNCEMENT: "#4A6585",
 }
 
 
@@ -46,11 +47,13 @@ class EventListItem(ctk.CTkFrame):
             fg_color=palette["bg_secondary"],
             corner_radius=6,
             cursor="hand2" if self._on_click else "",
+            border_width=1,
+            border_color=palette["border"],
         )
         self.bind("<Button-1>", self._handle_click)
 
         row = ctk.CTkFrame(self, fg_color="transparent")
-        row.pack(fill="x", padx=10, pady=6)
+        row.pack(fill="x", padx=spacing("spacing_m"), pady=spacing("spacing_s"))
 
         # Symbol + company name
         name_label = ctk.CTkLabel(
@@ -75,7 +78,7 @@ class EventListItem(ctk.CTkFrame):
                 corner_radius=4,
                 padx=6,
             )
-            badge.pack(side="left", padx=(8, 0))
+            badge.pack(side="left", padx=(spacing("spacing_s"), 0))
             badge.bind("<Button-1>", self._handle_click)
 
         # Time
@@ -100,7 +103,7 @@ class EventListItem(ctk.CTkFrame):
                 text_color=palette["text_secondary"],
                 anchor="w",
             )
-            summary_label.pack(fill="x", padx=10, pady=(0, 6))
+            summary_label.pack(fill="x", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s")))
             summary_label.bind("<Button-1>", self._handle_click)
 
     def _handle_click(self, _event=None) -> None:

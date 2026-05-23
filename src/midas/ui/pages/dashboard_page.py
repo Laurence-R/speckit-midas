@@ -5,6 +5,7 @@ import customtkinter as ctk
 
 from midas.ui.components.event_list_item import EventListItem
 from midas.ui.components.market_overview_card import MarketOverviewCard
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 from midas.viewmodels.dashboard_vm import DashboardViewModel
 
@@ -35,15 +36,15 @@ class DashboardPage(ctk.CTkFrame):
             text="今日重要事件",
             font=make_font(size=18, weight="bold"),
             text_color=palette["text_primary"],
-        ).pack(anchor="w", padx=20, pady=(16, 8))
+        ).pack(anchor="w", padx=spacing("container_padding"), pady=(spacing("spacing_m"), spacing("spacing_s")))
 
         self._overview_card = MarketOverviewCard(self, overview=None)
-        self._overview_card.pack(fill="x", padx=20, pady=(0, 12))
+        self._overview_card.pack(fill="x", padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
 
         self._list_frame = ctk.CTkScrollableFrame(
             self, fg_color=palette["bg_primary"], corner_radius=0
         )
-        self._list_frame.pack(fill="both", expand=True, padx=20, pady=(0, 12))
+        self._list_frame.pack(fill="both", expand=True, padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
 
     def load(self) -> None:
         """Populate the page from the ViewModel."""
@@ -63,7 +64,7 @@ class DashboardPage(ctk.CTkFrame):
                 text="今日暫無事件",
                 text_color=get_palette()["text_secondary"],
                 font=make_font(size=13),
-            ).pack(pady=40)
+            ).pack(pady=spacing("spacing_l") * 2)
             return
 
         for group in groups:
@@ -73,7 +74,7 @@ class DashboardPage(ctk.CTkFrame):
                 events=group.events,
                 on_click=self._on_stock_click,
             )
-            item.pack(fill="x", pady=4)
+            item.pack(fill="x", pady=spacing("spacing_s") // 2)
 
     def _on_stock_click(self, symbol: str) -> None:
         if self._controller:

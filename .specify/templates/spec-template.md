@@ -93,6 +93,23 @@
 - **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
 - **FR-005**: System MUST [behavior, e.g., "log all security events"]
 
+### Constitution Alignment *(mandatory for impacted features)*
+
+<!--
+  ACTION REQUIRED: If this feature touches the relevant scope, explicitly state:
+  - Desktop framework compliance (CustomTkinter only, CTk root window, reusable CTkFrame components)
+  - Provider boundary (no UI-layer direct calls to FinMind/external I/O)
+  - Secrets handling (token/API key/path settings not hardcoded)
+  - Local-first behavior (SQLite cache, offline fallback, fetched_at visibility)
+  - Source mapping (if non-primary provider is used, include mapping + credibility + fallback rationale)
+-->
+
+- **CA-001**: [If UI is changed, describe CustomTkinter compliance or mark N/A]
+- **CA-002**: [If data provider integration is changed, describe Service/Repository boundary compliance or mark N/A]
+- **CA-003**: [Describe secret/config handling approach or mark N/A]
+- **CA-004**: [Describe local cache + offline fallback behavior or mark N/A]
+- **CA-005**: [If fallback providers are used, define field mapping + credibility + fallback strategy, else mark N/A]
+
 *Example of marking unclear requirements:*
 
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]

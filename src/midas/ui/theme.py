@@ -64,6 +64,10 @@ DARK_PALETTE: dict[str, str] = {
     "sentiment_positive": "#F87171",
     "sentiment_negative": "#34D399",
     "sentiment_neutral":  "#7A93B4",
+    # Interaction roles
+    "interactive_hover": "#2A3B5D",
+    "interactive_focus": "#38BDF8",
+    "interactive_disabled": "#34445F",
 }
 
 LIGHT_PALETTE: dict[str, str] = {
@@ -80,6 +84,17 @@ LIGHT_PALETTE: dict[str, str] = {
     "sentiment_positive": "#DC2626",
     "sentiment_negative": "#059669",
     "sentiment_neutral":  "#4A6585",
+    # Interaction roles
+    "interactive_hover": "#E6EEF8",
+    "interactive_focus": "#0EA5E9",
+    "interactive_disabled": "#D5DEEC",
+}
+
+SPACING_TOKENS: dict[str, int] = {
+    "spacing_s": 8,
+    "spacing_m": 12,
+    "spacing_l": 20,
+    "container_padding": 20,
 }
 
 
@@ -88,6 +103,18 @@ def apply_theme(mode: str = "dark") -> None:
     ctk.set_appearance_mode(mode)
 
 
-def get_palette(mode: str = "dark") -> dict[str, str]:
-    """Return the colour palette for the given mode."""
-    return DARK_PALETTE if mode == "dark" else LIGHT_PALETTE
+def _resolve_mode(mode: str | None = None) -> str:
+    if mode in {"dark", "light"}:
+        return mode
+    current = ctk.get_appearance_mode().lower()
+    return "dark" if current.startswith("dark") else "light"
+
+
+def get_palette(mode: str | None = None) -> dict[str, str]:
+    """Return the colour palette for the given mode or current appearance mode."""
+    return DARK_PALETTE if _resolve_mode(mode) == "dark" else LIGHT_PALETTE
+
+
+def get_spacing_tokens() -> dict[str, int]:
+    """Return shared spacing tokens for medium-high density layout."""
+    return SPACING_TOKENS.copy()

@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.*.local
+.env*
 
 # Python
 __pycache__/
@@ -38,12 +39,15 @@ build/
 
 # IDE
 .vscode/settings.json
+.vscode/
 .idea/
 *.suo
 *.user
 *.iml
 .DS_Store
 Thumbs.db
+*.tmp
+*.swp
 
 # Testing
 .pytest_cache/

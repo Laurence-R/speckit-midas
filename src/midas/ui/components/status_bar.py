@@ -6,6 +6,7 @@ from collections.abc import Callable
 import customtkinter as ctk
 
 from midas.ui.theme import get_palette, make_font
+from midas.ui.style_tokens import spacing
 
 
 class StatusBar(ctk.CTkFrame):
@@ -23,6 +24,7 @@ class StatusBar(ctk.CTkFrame):
         self._on_retry = on_retry
 
         palette = get_palette()
+        self.configure(fg_color=palette["bg_secondary"], border_width=1, border_color=palette["border"])
 
         self._status_label = ctk.CTkLabel(
             self,
@@ -31,7 +33,7 @@ class StatusBar(ctk.CTkFrame):
             text_color=palette["text_secondary"],
             anchor="w",
         )
-        self._status_label.pack(side="left", padx=10, pady=2)
+        self._status_label.pack(side="left", padx=spacing("spacing_m"), pady=2)
 
         self._retry_btn = ctk.CTkButton(
             self,
@@ -40,8 +42,11 @@ class StatusBar(ctk.CTkFrame):
             height=22,
             font=make_font(size=12),
             command=self._handle_retry,
+            fg_color=palette["accent"],
+            text_color=palette["bg_primary"],
+            hover_color=palette["interactive_hover"],
         )
-        self._retry_btn.pack(side="right", padx=6, pady=2)
+        self._retry_btn.pack(side="right", padx=spacing("spacing_s"), pady=2)
 
         self._time_label = ctk.CTkLabel(
             self,
@@ -50,7 +55,7 @@ class StatusBar(ctk.CTkFrame):
             text_color=palette["text_secondary"],
             anchor="e",
         )
-        self._time_label.pack(side="right", padx=10, pady=2)
+        self._time_label.pack(side="right", padx=spacing("spacing_m"), pady=2)
 
     def set_retry_command(self, command: Callable[[], None]) -> None:
         self._on_retry = command
@@ -60,11 +65,11 @@ class StatusBar(ctk.CTkFrame):
         self._retry_btn.configure(state="disabled", text="更新中…")
 
     def show_error(self, msg: str) -> None:
-        self._status_label.configure(text=f"更新失敗：{msg}")
+        self._status_label.configure(text=f"更新失敗：{msg}", text_color=get_palette()["error"])
         self._retry_btn.configure(state="normal", text="重試")
 
     def show_ready(self, timestamp: str) -> None:
-        self._status_label.configure(text="就緒")
+        self._status_label.configure(text="就緒", text_color=get_palette()["text_secondary"])
         self._time_label.configure(text=f"最後更新：{timestamp}")
         self._retry_btn.configure(state="normal", text="手動更新")
 

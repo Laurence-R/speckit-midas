@@ -4,20 +4,20 @@ from __future__ import annotations
 import os
 import webbrowser
 from datetime import date, datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import customtkinter as ctk
 
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 
 if TYPE_CHECKING:
-    from midas.integrations.finmind_client import FinMindClient
     from midas.services.resource_monitor_service import ResourceMonitorService
 
 _AI_STUDIO_URL = "https://aistudio.google.com/"
 
 
-def _get_finmind_usage_state(finmind_client: "FinMindClient" | None) -> tuple[bool, int, int]:
+def _get_finmind_usage_state(finmind_client: Any | None) -> tuple[bool, int, int]:
     """Return token status and hourly usage with safe defaults."""
     if finmind_client is None:
         return False, 0, 600
@@ -55,14 +55,14 @@ class ResourceMonitorPage(ctk.CTkFrame):
             text="資源監控",
             font=make_font(size=18, weight="bold"),
             text_color=palette["text_primary"],
-        ).pack(anchor="w", padx=20, pady=(16, 4))
+        ).pack(anchor="w", padx=spacing("container_padding"), pady=(spacing("spacing_m"), 4))
 
         ctk.CTkLabel(
             self,
             text="即時顯示 API 配額、資料快取狀態",
             font=make_font(size=12),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=20, pady=(0, 16))
+        ).pack(anchor="w", padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
 
         self._build_gemini_section()
         self._build_finmind_section()
@@ -73,15 +73,18 @@ class ResourceMonitorPage(ctk.CTkFrame):
             text="重新整理",
             width=120,
             font=make_font(size=13),
+            fg_color=palette["accent"],
+            text_color=palette["bg_primary"],
+            hover_color=palette["interactive_hover"],
             command=self._refresh,
-        ).pack(anchor="w", padx=20, pady=(8, 16))
+        ).pack(anchor="w", padx=spacing("container_padding"), pady=(spacing("spacing_s"), spacing("spacing_m")))
 
     def _build_gemini_section(self) -> None:
         palette = get_palette()
         frame = self._make_section("Gemini AI（摘要生成）")
 
         key_row = ctk.CTkFrame(frame, fg_color="transparent")
-        key_row.pack(fill="x", padx=12, pady=(4, 4))
+        key_row.pack(fill="x", padx=spacing("spacing_m"), pady=(4, 4))
         ctk.CTkLabel(
             key_row,
             text="Key 狀態：",
@@ -102,17 +105,20 @@ class ResourceMonitorPage(ctk.CTkFrame):
             width=220,
             height=28,
             font=make_font(size=12),
-            fg_color="transparent",
+            fg_color=palette["bg_secondary"],
             border_width=1,
+            border_color=palette["border"],
+            text_color=palette["text_primary"],
+            hover_color=palette["interactive_hover"],
             command=lambda: webbrowser.open(_AI_STUDIO_URL),
-        ).pack(anchor="w", padx=12, pady=(0, 10))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s")))
 
     def _build_finmind_section(self) -> None:
         palette = get_palette()
         frame = self._make_section("FinMind（市場資料）")
 
         token_row = ctk.CTkFrame(frame, fg_color="transparent")
-        token_row.pack(fill="x", padx=12, pady=(4, 8))
+        token_row.pack(fill="x", padx=spacing("spacing_m"), pady=(4, spacing("spacing_s")))
         ctk.CTkLabel(
             token_row,
             text="Token 狀態：",
@@ -132,10 +138,10 @@ class ResourceMonitorPage(ctk.CTkFrame):
             text="本小時 API 用量",
             font=make_font(size=12),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=12, pady=(0, 4))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(0, 4))
 
         bar_row = ctk.CTkFrame(frame, fg_color="transparent")
-        bar_row.pack(fill="x", padx=12, pady=(0, 2))
+        bar_row.pack(fill="x", padx=spacing("spacing_m"), pady=(0, 2))
         self._finmind_bar = ctk.CTkProgressBar(bar_row, width=260)
         self._finmind_bar.set(0)
         self._finmind_bar.pack(side="left")
@@ -152,14 +158,14 @@ class ResourceMonitorPage(ctk.CTkFrame):
             text="每小時整點重置",
             font=make_font(size=11),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=12, pady=(0, 10))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s")))
 
     def _build_cache_section(self) -> None:
         palette = get_palette()
         frame = self._make_section("本機快取")
 
         last_row = ctk.CTkFrame(frame, fg_color="transparent")
-        last_row.pack(fill="x", padx=12, pady=(4, 2))
+        last_row.pack(fill="x", padx=spacing("spacing_m"), pady=(4, 2))
         ctk.CTkLabel(
             last_row,
             text="最後更新：",
@@ -187,7 +193,7 @@ class ResourceMonitorPage(ctk.CTkFrame):
             font=make_font(size=12),
             text_color=palette["text_secondary"],
         )
-        self._cache_counts_label.pack(anchor="w", padx=12, pady=(2, 2))
+        self._cache_counts_label.pack(anchor="w", padx=spacing("spacing_m"), pady=(2, 2))
 
         self._cache_size_label = ctk.CTkLabel(
             frame,
@@ -195,18 +201,19 @@ class ResourceMonitorPage(ctk.CTkFrame):
             font=make_font(size=12),
             text_color=palette["text_secondary"],
         )
-        self._cache_size_label.pack(anchor="w", padx=12, pady=(0, 10))
+        self._cache_size_label.pack(anchor="w", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s")))
 
     def _make_section(self, title: str) -> ctk.CTkFrame:
         palette = get_palette()
         outer = ctk.CTkFrame(self, fg_color=palette["bg_secondary"], corner_radius=8)
-        outer.pack(fill="x", padx=20, pady=(0, 12))
+        outer.configure(border_width=1, border_color=palette["border"])
+        outer.pack(fill="x", padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
         ctk.CTkLabel(
             outer,
             text=title,
             font=make_font(size=14, weight="bold"),
             text_color=palette["text_primary"],
-        ).pack(anchor="w", padx=12, pady=(10, 4))
+        ).pack(anchor="w", padx=spacing("spacing_m"), pady=(spacing("spacing_s"), 4))
         return outer
 
     # ------------------------------------------------------------------

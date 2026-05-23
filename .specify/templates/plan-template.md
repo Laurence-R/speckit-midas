@@ -47,6 +47,11 @@
 - [ ] **Testability Gate**: 每個 Service 與 Repository 是否有明確介面可供 Mock？
 - [ ] **Fallback Gate**: 網路失敗路徑是否有快取回退與可見錯誤狀態設計？
 - [ ] **Cost Gate**: LLM 與外部 API 呼叫是否有頻率控制與 token 記錄設計？
+- [ ] **Desktop Framework Gate**: 是否明確遵守 CustomTkinter 為唯一主要 GUI 框架？
+- [ ] **Provider Boundary Gate**: 是否所有 FinMind 呼叫都經過 Service/Repository，而非 UI？
+- [ ] **Secrets Gate**: token、API key、路徑設定是否避免硬編碼？
+- [ ] **Local-First Gate**: 是否有 SQLite 快取、離線 fallback、`fetched_at` 顯示？
+- [ ] **Source Mapping Gate**: 若使用非 FinMind 替代資料源，是否定義欄位映射與可信度說明？
 
 ## Project Structure
 

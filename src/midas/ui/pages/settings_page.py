@@ -5,6 +5,7 @@ from collections.abc import Callable
 
 import customtkinter as ctk
 
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import (
     apply_theme,
     get_font_scale,
@@ -43,23 +44,25 @@ class SettingsPage(ctk.CTkFrame):
             text="設定",
             font=make_font(size=18, weight="bold"),
             text_color=palette["text_primary"],
-        ).pack(anchor="w", padx=20, pady=(16, 4))
+        ).pack(anchor="w", padx=spacing("container_padding"), pady=(spacing("spacing_m"), 4))
 
         # ---- API Keys section ----
         self._section_label("API 金鑰")
         form = ctk.CTkFrame(self, fg_color=palette["bg_card"], corner_radius=8)
-        form.pack(fill="x", padx=20, pady=(0, 16))
+        form.configure(border_width=1, border_color=palette["border"])
+        form.pack(fill="x", padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
         self._add_setting_row(form, "FinMind Token", "finmind_token", show=False)
         self._add_setting_row(form, "Gemini API Key", "gemini_api_key", show=False)
 
         # ---- Appearance section ----
         self._section_label("外觀")
         appearance_frame = ctk.CTkFrame(self, fg_color=palette["bg_card"], corner_radius=8)
-        appearance_frame.pack(fill="x", padx=20, pady=(0, 16))
+        appearance_frame.configure(border_width=1, border_color=palette["border"])
+        appearance_frame.pack(fill="x", padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
 
         # Theme toggle
         theme_row = ctk.CTkFrame(appearance_frame, fg_color="transparent")
-        theme_row.pack(fill="x", padx=12, pady=(8, 4))
+        theme_row.pack(fill="x", padx=spacing("spacing_m"), pady=(spacing("spacing_s"), 4))
         ctk.CTkLabel(
             theme_row, text="主題", width=160, anchor="w",
             font=make_font(size=13), text_color=palette["text_primary"],
@@ -68,11 +71,16 @@ class SettingsPage(ctk.CTkFrame):
             theme_row,
             values=["深色", "淺色"],
             command=self._on_theme_change,
+            selected_color=palette["accent"],
+            selected_hover_color=palette["interactive_hover"],
+            unselected_color=palette["bg_secondary"],
+            unselected_hover_color=palette["interactive_hover"],
+            text_color=palette["text_primary"],
         ).pack(side="left")
 
         # Font size
         font_row = ctk.CTkFrame(appearance_frame, fg_color="transparent")
-        font_row.pack(fill="x", padx=12, pady=(0, 8))
+        font_row.pack(fill="x", padx=spacing("spacing_m"), pady=(0, spacing("spacing_s")))
         ctk.CTkLabel(
             font_row, text="字體大小", width=160, anchor="w",
             font=make_font(size=13), text_color=palette["text_primary"],
@@ -82,6 +90,11 @@ class SettingsPage(ctk.CTkFrame):
             font_row,
             values=["小", "中", "大"],
             command=self._on_font_change,
+            selected_color=palette["accent"],
+            selected_hover_color=palette["interactive_hover"],
+            unselected_color=palette["bg_secondary"],
+            unselected_hover_color=palette["interactive_hover"],
+            text_color=palette["text_primary"],
         )
         self._font_seg.set(current_label)
         self._font_seg.pack(side="left")
@@ -89,9 +102,10 @@ class SettingsPage(ctk.CTkFrame):
         # ---- Other section ----
         self._section_label("其他")
         other_frame = ctk.CTkFrame(self, fg_color=palette["bg_card"], corner_radius=8)
-        other_frame.pack(fill="x", padx=20, pady=(0, 16))
+        other_frame.configure(border_width=1, border_color=palette["border"])
+        other_frame.pack(fill="x", padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
         cache_row = ctk.CTkFrame(other_frame, fg_color="transparent")
-        cache_row.pack(fill="x", padx=12, pady=8)
+        cache_row.pack(fill="x", padx=spacing("spacing_m"), pady=spacing("spacing_s"))
         ctk.CTkLabel(
             cache_row, text="清除快取", width=160, anchor="w",
             font=make_font(size=13), text_color=palette["text_primary"],
@@ -101,7 +115,7 @@ class SettingsPage(ctk.CTkFrame):
             text="清除",
             width=80,
             fg_color=palette["error"],
-            hover_color="#B91C1C",
+            hover_color=palette["interactive_hover"],
             command=self._on_clear_cache,
         ).pack(side="left")
         self._cache_feedback_label = ctk.CTkLabel(
@@ -123,17 +137,24 @@ class SettingsPage(ctk.CTkFrame):
             text=text,
             font=make_font(size=11, weight="bold"),
             text_color=palette["text_secondary"],
-        ).pack(anchor="w", padx=24, pady=(4, 2))
+        ).pack(anchor="w", padx=spacing("container_padding") + 4, pady=(4, 2))
 
     def _add_setting_row(self, parent, label: str, db_key: str, show: bool = True) -> None:
         palette = get_palette()
         row = ctk.CTkFrame(parent, fg_color="transparent")
-        row.pack(fill="x", padx=12, pady=6)
+        row.pack(fill="x", padx=spacing("spacing_m"), pady=spacing("spacing_s") // 2)
         ctk.CTkLabel(
             row, text=label, width=160, anchor="w",
             font=make_font(size=13), text_color=palette["text_primary"],
         ).pack(side="left")
-        entry = ctk.CTkEntry(row, width=300, show="*" if not show else "")
+        entry = ctk.CTkEntry(
+            row,
+            width=300,
+            show="*" if not show else "",
+            border_color=palette["border"],
+            fg_color=palette["bg_secondary"],
+            text_color=palette["text_primary"],
+        )
         entry.pack(side="left")
 
         if self._db is not None:
@@ -158,7 +179,10 @@ class SettingsPage(ctk.CTkFrame):
 
         ctk.CTkButton(
             row, text="儲存", width=60, font=make_font(size=12), command=_save,
-        ).pack(side="left", padx=(8, 0))
+            fg_color=palette["accent"],
+            text_color=palette["bg_primary"],
+            hover_color=palette["interactive_hover"],
+        ).pack(side="left", padx=(spacing("spacing_s"), 0))
 
     def _save_setting(self, key: str, value: str) -> None:
         if self._db is None:

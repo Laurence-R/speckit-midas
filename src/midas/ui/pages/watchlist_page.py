@@ -6,6 +6,7 @@ import tkinter.messagebox
 import customtkinter as ctk
 
 from midas.exceptions import WatchlistLimitError
+from midas.ui.style_tokens import spacing
 from midas.ui.theme import get_palette, make_font
 from midas.viewmodels.watchlist_vm import WatchlistViewModel
 
@@ -36,17 +37,20 @@ class WatchlistPage(ctk.CTkFrame):
             text="自選股清單",
             font=make_font(size=18, weight="bold"),
             text_color=palette["text_primary"],
-        ).pack(anchor="w", padx=20, pady=(16, 8))
+        ).pack(anchor="w", padx=spacing("container_padding"), pady=(spacing("spacing_m"), spacing("spacing_s")))
 
         # Add row
         add_frame = ctk.CTkFrame(self, fg_color="transparent")
-        add_frame.pack(fill="x", padx=20, pady=(0, 8))
+        add_frame.pack(fill="x", padx=spacing("container_padding"), pady=(0, spacing("spacing_s")))
 
         self._add_entry = ctk.CTkEntry(
             add_frame,
             placeholder_text="輸入股票代號，例如 2330",
             width=200,
             font=make_font(size=13),
+            border_color=palette["border"],
+            fg_color=palette["bg_secondary"],
+            text_color=palette["text_primary"],
         )
         self._add_entry.pack(side="left")
         self._add_entry.bind("<Return>", lambda _: self._on_add())
@@ -54,23 +58,29 @@ class WatchlistPage(ctk.CTkFrame):
         ctk.CTkButton(
             add_frame, text="新增", width=80, font=make_font(size=13),
             command=self._on_add,
-        ).pack(side="left", padx=(8, 0))
+            fg_color=palette["accent"],
+            text_color=palette["bg_primary"],
+            hover_color=palette["interactive_hover"],
+        ).pack(side="left", padx=(spacing("spacing_s"), 0))
 
         self._limit_label = ctk.CTkLabel(
             add_frame, text="", font=make_font(size=11),
             text_color=palette["error"],
         )
-        self._limit_label.pack(side="left", padx=(8, 0))
+        self._limit_label.pack(side="left", padx=(spacing("spacing_s"), 0))
 
         # Search
         search_frame = ctk.CTkFrame(self, fg_color="transparent")
-        search_frame.pack(fill="x", padx=20, pady=(0, 8))
+        search_frame.pack(fill="x", padx=spacing("container_padding"), pady=(0, spacing("spacing_s")))
 
         self._search_entry = ctk.CTkEntry(
             search_frame,
             placeholder_text="搜尋股票代號或名稱",
             width=300,
             font=make_font(size=13),
+            border_color=palette["border"],
+            fg_color=palette["bg_secondary"],
+            text_color=palette["text_primary"],
         )
         self._search_entry.pack(side="left")
         self._search_entry.bind("<KeyRelease>", lambda *_: self._refresh_list())
@@ -79,7 +89,7 @@ class WatchlistPage(ctk.CTkFrame):
         self._list_frame = ctk.CTkScrollableFrame(
             self, fg_color=palette["bg_primary"],
         )
-        self._list_frame.pack(fill="both", expand=True, padx=20, pady=(0, 12))
+        self._list_frame.pack(fill="both", expand=True, padx=spacing("container_padding"), pady=(0, spacing("spacing_m")))
 
         self._refresh_list()
 
@@ -110,14 +120,15 @@ class WatchlistPage(ctk.CTkFrame):
                 text="尚未新增自選股" if not query else "找不到結果",
                 text_color=palette["text_secondary"],
                 font=make_font(size=13),
-            ).pack(pady=40)
+            ).pack(pady=spacing("spacing_l") * 2)
             return
 
         for stock in stocks:
             row = ctk.CTkFrame(
                 self._list_frame, fg_color=palette["bg_secondary"], corner_radius=6,
             )
-            row.pack(fill="x", pady=3)
+            row.configure(border_width=1, border_color=palette["border"])
+            row.pack(fill="x", pady=spacing("spacing_s") // 3)
 
             # Symbol + name
             ctk.CTkLabel(
@@ -152,7 +163,7 @@ class WatchlistPage(ctk.CTkFrame):
                 width=60,
                 font=make_font(size=12),
                 fg_color=palette["error"],
-                hover_color="#991B1B",
+                    hover_color=palette["interactive_hover"],
                 command=lambda s=sym: self._on_delete(s),
             ).pack(side="right", padx=8, pady=6)
 
@@ -163,6 +174,9 @@ class WatchlistPage(ctk.CTkFrame):
                     text="詳情",
                     width=60,
                     font=make_font(size=12),
+                    fg_color=palette["accent"],
+                    text_color=palette["bg_primary"],
+                    hover_color=palette["interactive_hover"],
                     command=lambda s=sym: self._controller.show_stock_detail(s),
                 ).pack(side="right", padx=(0, 4), pady=6)
 
