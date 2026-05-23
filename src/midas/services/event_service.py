@@ -17,16 +17,13 @@ class EventService(IEventService):
         """Return today's events for *symbols*, sorted by priority then time."""
         today = get_effective_date()
         events = self._repo.get_today_events_for_symbols(symbols, today)
-        return sorted(
-            events,
-            key=lambda e: (e.event_type.priority, e.occurred_at),
-            reverse=False,
-        )
+        # Stable two-pass sort:
+        # 1) latest event first, 2) then group by priority (ascending).
+        events = sorted(events, key=lambda e: e.occurred_at, reverse=True)
+        return sorted(events, key=lambda e: e.event_type.priority)
 
     def get_events_for_stock(self, symbol: str, date: str) -> list[MarketEvent]:
         """Return events for a single stock on *date* (YYYY-MM-DD)."""
         events = self._repo.get_by_symbol_date(symbol, date)
-        return sorted(
-            events,
-            key=lambda e: (e.event_type.priority, e.occurred_at),
-        )
+        events = sorted(events, key=lambda e: e.occurred_at, reverse=True)
+        return sorted(events, key=lambda e: e.event_type.priority)

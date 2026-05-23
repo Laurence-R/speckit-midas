@@ -40,10 +40,10 @@ CREATE TABLE market_events (
     event_date              TEXT    NOT NULL,   -- YYYY-MM-DD（公告日）
     event_type              TEXT    NOT NULL,   -- 見 EventType enum
     event_type_priority     INTEGER NOT NULL,   -- 1=財報, 2=法說, 3=重訊, 4=一般
-    occurred_at             DATETIME NOT NULL,  -- 事件原始發生時間
+    occurred_at             DATETIME NOT NULL,  -- 報導發布時間（UI 顯示用台北時間）
     title                   TEXT    NOT NULL,   -- 公告標題
     source_url              TEXT    NOT NULL,   -- 原始來源 URL（必填，不可空）
-    source_name             TEXT    NOT NULL,   -- 資料來源名稱 e.g. 'FinMind 新聞'
+    source_name             TEXT    NOT NULL,   -- 資料來源名稱 e.g. 'CMoney', 'ETtoday'
     ai_summary              TEXT,               -- 80–800 字摘要（格式：【新聞摘要】+【分析解讀】），可 NULL 代表尚未生成
     ai_summary_generated_at DATETIME,           -- LLM 生成時間
     ai_model                TEXT,               -- e.g. 'gemini-3.5-flash'
@@ -51,7 +51,7 @@ CREATE TABLE market_events (
     disclaimer              TEXT    NOT NULL DEFAULT '此為 AI 摘要，僅供參考，不構成投資建議。',
     fetched_at              DATETIME NOT NULL,  -- 本機抓取時間（可溯源）
 
-    UNIQUE(symbol, event_date, source_url)      -- 防止重複匯入同一事件
+    UNIQUE(symbol, event_date, source_url)      -- 同鍵衝突時由 upsert 覆寫 mutable 欄位
 );
 
 CREATE INDEX idx_market_events_symbol_date ON market_events(symbol, event_date);
@@ -224,7 +224,7 @@ class MarketEvent:
     symbol: str
     event_date: str             # YYYY-MM-DD
     event_type: EventType
-    occurred_at: datetime       # 報導真實發布時間（來自 FinMind API date 欄位）
+    occurred_at: datetime       # 報導發布時間（UI 顯示用台北時間）
     title: str
     source_url: str             # MUST NOT be empty
     source_name: str

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from midas.agents.interfaces import IAnnouncementAgent
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from midas.integrations.finmind_client import FinMindClient
 
 logger = logging.getLogger(__name__)
-_TW_TZ = timezone(timedelta(hours=8))
+_NEWS_TIME_OFFSET = timedelta(hours=8)
 
 # Keyword → EventType classification rules (evaluated in order)
 _CLASSIFICATION_RULES: list[tuple[list[str], EventType]] = [
@@ -107,7 +107,7 @@ class AnnouncementAgent(IAnnouncementAgent):
 
     @staticmethod
     def _parse_news_datetime(date_raw: str) -> datetime:
-        """Parse FinMind news datetime and convert UTC -> UTC+8 (Taipei)."""
+        """Parse FinMind news datetime and shift it into Taiwan local display time."""
         if not date_raw:
             return datetime.now()
 
@@ -127,7 +127,4 @@ class AnnouncementAgent(IAnnouncementAgent):
                 return datetime.now()
             dt = parsed
 
-        # FinMind news timestamps are UTC; convert for Taiwan UI display.
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt.astimezone(_TW_TZ).replace(tzinfo=None)
+        return dt.replace(tzinfo=None) + _NEWS_TIME_OFFSET

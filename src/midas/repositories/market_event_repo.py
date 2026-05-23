@@ -47,15 +47,22 @@ class MarketEventRepo(IMarketEventRepository):
         return self.get_by_date(date, symbols)
 
     def upsert_many(self, events: list[MarketEvent]) -> None:
-        """INSERT OR IGNORE to respect UNIQUE(symbol, event_date, source_url)."""
+        """Upsert events and refresh mutable source fields on uniqueness conflicts."""
         self._conn.executemany(
             """
-            INSERT OR IGNORE INTO market_events (
+            INSERT INTO market_events (
                 symbol, event_date, event_type, event_type_priority,
                 occurred_at, title, source_url, source_name,
                 ai_summary, ai_summary_generated_at, ai_model,
                 sentiment, disclaimer, fetched_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(symbol, event_date, source_url) DO UPDATE SET
+                event_type = excluded.event_type,
+                event_type_priority = excluded.event_type_priority,
+                occurred_at = excluded.occurred_at,
+                title = excluded.title,
+                source_name = excluded.source_name,
+                fetched_at = excluded.fetched_at
             """,
             [self._model_to_row(e) for e in events],
         )

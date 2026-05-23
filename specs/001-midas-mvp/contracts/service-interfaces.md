@@ -140,8 +140,8 @@ class IAnnouncementAgent(ABC):
     @abstractmethod
     def fetch_announcements(self, symbol: str, date: str) -> list[MarketEvent]:
         """
-        Fetches from MOPS. Returns empty list on no events.
-        Raises: ScrapingError on unrecoverable failure.
+    Fetches from FinMind TaiwanStockNews. Returns empty list on no events.
+    May swallow fetch failures and return empty list for pipeline resilience.
         """
         ...
 ```

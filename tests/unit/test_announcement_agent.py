@@ -156,6 +156,15 @@ def test_occurred_at_parses_iso_z_and_converts_to_taipei(mock_client: MagicMock)
     assert event.occurred_at == datetime(2024, 5, 10, 18, 20, 0)
 
 
+def test_occurred_at_shifts_source_time_by_eight_hours(mock_client: MagicMock) -> None:
+    news_taipei = dict(_NEWS_FINANCIAL)
+    news_taipei["date"] = "2026-05-22 01:04:00"
+    mock_client.get_stock_news.return_value = {"data": [news_taipei]}
+    ag = AnnouncementAgent(finmind_client=mock_client)
+    event = ag.fetch_announcements("2330", "2026-05-22")[0]
+    assert event.occurred_at == datetime(2026, 5, 22, 9, 4, 0)
+
+
 def test_symbol_set_correctly(mock_client: MagicMock) -> None:
     mock_client.get_stock_news.return_value = {"data": [_NEWS_FINANCIAL]}
     ag = AnnouncementAgent(finmind_client=mock_client)

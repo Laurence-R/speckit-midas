@@ -12,13 +12,13 @@ Midas 是以 Multi-Agent 架構驅動的台股盤後投研桌面應用（Windows
 
 **Language/Version**: Python 3.12
 
-**Primary Dependencies**: customtkinter, FinMind（finmindapi），requests, google-generativeai, platformdirs, pytest, pytest-mock, PyInstaller
+**Primary Dependencies**: customtkinter, FinMind（finmindapi），requests, google-generativeai, platformdirs, pytest, pytest-mock
 
 **Storage**: SQLite — `%APPDATA%\Midas\midas.db`（原生 `sqlite3`，`PRAGMA user_version = 1`）
 
 **Testing**: pytest + pytest-mock；unit tests 不得呼叫真實 API
 
-**Target Platform**: Windows 10/11 桌面（PyInstaller --onedir 打包）
+**Target Platform**: Windows 10/11 桌面（原始碼執行）
 
 **Project Type**: desktop-app
 
@@ -62,7 +62,6 @@ midas/
 ├── main.py                          # Entry point（啟動 CTk App）
 ├── pyproject.toml                   # uv 專案設定
 ├── .env.example                     # 環境變數範本
-├── build.spec                       # PyInstaller 打包設定
 ├── scripts/
 │   ├── load_fixtures.py             # 載入測試假資料至本機 DB
 │   └── reset_db.py                  # 清除本機測試 DB
@@ -81,7 +80,7 @@ midas/
 │       │   │   ├── stock_detail_page.py   # US-02/03: 個股詳情（事件 + 財務 Tab）
 │       │   │   ├── watchlist_page.py      # US-04: 追蹤清單管理
 │       │   │   ├── settings_page.py       # 設定頁（API Key、主題切換）
-│       │   │   └── api_monitor_page.py    # API 監控（Gemini / FinMind 配額、手動更新觸發）
+│       │   │   └── resource_monitor_page.py # 資源監控（Gemini / FinMind 配額、本機快取狀態）
 │       │   └── components/
 │       │       ├── __init__.py
 │       │       ├── sidebar_nav.py          # 左側導航列
@@ -347,8 +346,8 @@ class GeminiClient:
 │  │  (180px)     │  ┌────────────────────────────────┐│  │
 │  │  • 首頁      │  │  DashboardPage  (預設)          ││  │
 │  │  • 追蹤清單  │  │  StockDetailPage                ││  │
-│  │  • API 監控  │  │  WatchlistPage                  ││  │
-│  │  • 設定      │  │  ApiMonitorPage                 ││  │
+│  │  • 資源監控  │  │  WatchlistPage                  ││  │
+│  │  • 設定      │  │  ResourceMonitorPage            ││  │
 │  │              │  │  SettingsPage                   ││  │
 │  │              │  └────────────────────────────────┘│  │
 │  └──────────────┴────────────────────────────────────┘  │
@@ -363,7 +362,7 @@ class GeminiClient:
 | `DashboardPage` | `MarketOverviewCard` + `EventListItem` 列表 | `DashboardViewModel` | US-01 |
 | `StockDetailPage` | Tab: `StockEventCard` 列表 / `FinancialMetricRow` 列表 | `StockDetailViewModel` | US-02, US-03 |
 | `WatchlistPage` | 追蹤股清單 + 新增/刪除/備忘 | `WatchlistViewModel` | US-04 |
-| `ApiMonitorPage` | Gemini 每日配額進度、FinMind 本輪請求數、上次更新記錄、手動更新按鈕 | —（直接讀 GeminiClient + FinMindClient + UpdateJobRepo） | US-05 |
+| `ResourceMonitorPage` | Gemini Key 狀態、FinMind 每小時用量、本機快取狀態、重新整理按鈕 | —（讀 ResourceMonitorService + FinMindClient） | US-05 |
 | `SettingsPage` | API Key 輸入、主題切換、清除快取 | — | 設定 |
 
 ### 首頁事件清單排序規則（UI 層無需自行排序）
@@ -398,12 +397,12 @@ class GeminiClient:
 - `fixtures/sample_mops_announcement.html`：舊版 MOPS 假 HTML（已不使用，保留供參考）
 - `fixtures/sample_gemini_response.json`：含 events 摘要 JSON
 
-### 打包前最低驗收標準
+### 最低驗收標準
 
 - [ ] `pytest tests/unit/` 全綠（0 failures）
 - [ ] 冷啟動至首頁顯示 < 3 秒（空 watchlist）
 - [ ] 新增 1 筆追蹤股 → 重啟 → 資料保留
-- [ ] 手動觸發更新（ApiMonitorPage）→ 狀態列顯示進度 → 完成後首頁刷新
+- [ ] 手動觸發更新（ResourceMonitorPage）→ 狀態列顯示進度 → 完成後首頁刷新
 - [ ] 關閉應用後 `midas.db` 存在於 `%APPDATA%\Midas\`
 
 ---
@@ -414,7 +413,7 @@ class GeminiClient:
 |-----|---------|
 | 冷啟動 < 3 秒 | DB migration 在啟動時執行（< 100ms）；頁面 Frame 預先建立；首頁顯示快取資料不等待 API |
 | 頁面切換 < 300ms | `tkraise()` 切換（不 destroy/recreate）；ViewModel 資料預先載入 |
-| 盤後更新 < 10 分鐘 | 30 檔股票；Step 2（MOPS）串行抓取含 500ms 間隔預估 30 × 1s = 30s；Step 3（財務，cache miss 10 檔）= ~20s；Step 4（LLM，30 次 × 2s） = ~60s；總計 < 3 分鐘 |
+| 盤後更新 < 10 分鐘 | 30 檔股票；Step 2（FinMind 新聞）串行抓取預估 ~30 次請求；Step 3（財務）約 ~20s；Step 4（LLM，30 次 × 2s）約 ~60s；整體保留 < 10 分鐘緩衝 |
 | 資料附來源與時間戳 | 所有 dataclass 強制 `source_name` + `fetched_at` 欄位；Repository upsert 時不可省略 |
 | AI 結論附免責聲明 | `market_events.disclaimer` 寫入 DB；`StockEventCard` component 無條件顯示 |
 | 背景更新不阻塞 UI | `threading.Thread(daemon=True)` + `queue.Queue` + `App.after(500, check_queue)` |
@@ -435,6 +434,6 @@ class GeminiClient:
 | 研究筆記 | `TrackedStock.memo` 升級為獨立 `notes` 表（外鍵）的路徑已設計 | 純文字備忘欄位 |
 | 智慧提醒 | `UpdateJob` 完成後可觸發「重要事件」訊號；`IUpdateService` 介面可擴充 callback | 無通知功能 |
 | 產業地圖 | `MarketOverview.sector_rankings` JSON 保留原始類股代碼 | 純文字清單 |
-| 社群輿情 | `MarketEvent.source_name` 欄位支援非 MOPS 來源；`sentiment_source` 可加入 | 僅 MOPS 來源 |
+| 社群輿情 | `MarketEvent.source_name` 欄位支援多來源媒體；`sentiment_source` 可加入 | 目前以 FinMind TaiwanStockNews 來源為主 |
 | 排程常駐更新 | `UpdateService` / `BackgroundWorker` 介面不依賴「應用開啟」狀態，可升級為 Task Scheduler | 啟動時觸發 |
 

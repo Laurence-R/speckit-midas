@@ -36,7 +36,7 @@ cd midas
 uv sync --dev
 ```
 
-4. 啟動應用
+4. 啟動應用（原始碼模式）
 
 ```powershell
 uv run main.py

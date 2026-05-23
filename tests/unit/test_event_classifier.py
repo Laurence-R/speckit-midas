@@ -1,7 +1,4 @@
-"""Unit tests for AnnouncementAgent._classify_event() and _normalize_news().
-
-Previously tested MOPS-based _normalize(); updated for FinMind TaiwanStockNews.
-"""
+"""Unit tests for AnnouncementAgent._classify_event() and _normalize_news()."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -103,7 +100,8 @@ class TestNormalizeNews:
         }
         before = datetime.now()
         event = agent._normalize_news(rec, "2330", "2026-05-22")
-        assert event.occurred_at >= before or True  # just check no exception raised
+        after = datetime.now()
+        assert before <= event.occurred_at <= after
 
     def test_normalize_date_extracted_correctly(self, agent: AnnouncementAgent) -> None:
         rec = {

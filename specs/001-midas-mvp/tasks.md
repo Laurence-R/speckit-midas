@@ -16,7 +16,7 @@
 **目的**: 建立可運行的 Python 專案骨架，所有後續 phase 都依賴此基礎
 **預估**: 0.5 天
 
-- [x] T001 初始化 uv 專案：執行 `uv init` 並設定 `pyproject.toml`（Python 3.12、所有依賴：customtkinter, finmindapi, requests, beautifulsoup4, google-generativeai, platformdirs, pytest, pytest-mock, pyinstaller）
+- [x] T001 初始化 uv 專案：執行 `uv init` 並設定 `pyproject.toml`（Python 3.12、所有依賴：customtkinter, finmindapi, requests, beautifulsoup4, google-generativeai, platformdirs, pytest, pytest-mock）
 - [x] T002 [P] 建立完整目錄結構：`src/midas/{ui,viewmodels,services,agents,repositories,models,integrations,tasks}/`、`tests/{unit,integration}/`、`scripts/`（依 plan.md Project Structure）
 - [x] T003 [P] 建立 `.env.example`（含 `FINMIND_TOKEN=`, `GEMINI_API_KEY=`, `MIDAS_DB_PATH=`）與 `.gitignore`（含 `.env`, `*.db`, `dist/`, `build/`）
 - [x] T004 [P] 設定開發工具：`ruff`（linting + formatting）、`pytest.ini`（`testpaths=tests`、`markers = integration`）於 `pyproject.toml`
@@ -34,9 +34,9 @@
 
 - [x] T006 建立 `src/midas/ui/theme.py`：定義顏色常數（深色/亮色 palette）、CTk `set_appearance_mode` 初始化邏輯
 - [x] T007 建立 `src/midas/ui/app_window.py`：`AppWindow(ctk.CTkFrame)`，包含 1280×800 視窗、左側 `SidebarNav`（180px）佔位框、右側內容區 `ContentArea`（CTkFrame 容器）、底部 `StatusBar`（28px）
-- [x] T008 [P] 建立 `src/midas/ui/components/sidebar_nav.py`：`SidebarNav(ctk.CTkFrame)`，含首頁/自選股/API 監控/設定四個導航按鈕，點擊時呼叫 callback `on_navigate(page_name: str)`
+- [x] T008 [P] 建立 `src/midas/ui/components/sidebar_nav.py`：`SidebarNav(ctk.CTkFrame)`，含首頁/自選股/資源監控/設定四個導航按鈕，點擊時呼叫 callback `on_navigate(page_name: str)`
 - [x] T009 [P] 建立 `src/midas/ui/components/status_bar.py`：`StatusBar(ctk.CTkFrame)`，含更新時間標籤、進度文字標籤、重試按鈕（預設隱藏）；提供 `update_progress(step, total, label)`、`show_error(msg)`、`show_ready(timestamp)` 方法
-- [x] T010 建立 5 個頁面佔位 Frame（僅標題文字）：`src/midas/ui/pages/{dashboard_page,stock_detail_page,watchlist_page,settings_page,api_monitor_page}.py`；每個 page 為 `ctk.CTkFrame` 子類別
+- [x] T010 建立 5 個頁面佔位 Frame（僅標題文字）：`src/midas/ui/pages/{dashboard_page,stock_detail_page,watchlist_page,settings_page,resource_monitor_page}.py`；每個 page 為 `ctk.CTkFrame` 子類別
 - [x] T011 建立 `src/midas/app.py`：`App(ctk.CTk)`，在 `__init__` 中初始化所有 Page Frame、以 `tkraise()` 實作頁面切換、連接 `SidebarNav` callback；啟動 `self.after(500, self._check_queue)`（queue 輪詢佔位）
 - [x] T012 建立 `main.py`：呼叫 `App().mainloop()`；設定 `ctk.set_appearance_mode("dark")` 預設深色
 - [x] T013 驗證主題切換機制：在 `app.py` 加入暫時性呼叫確認 `ctk.set_appearance_mode("dark")` / `ctk.set_appearance_mode("light")` 可正常切換（骨架期驗證）；Phase B 不在 SettingsPage 加入切換按鈕，完整設定頁面主題切換由 T055 負責
@@ -66,7 +66,7 @@
 ### C-2: Repository Implementations
 
 - [x] T017 [P] 建立 `src/midas/repositories/tracked_stock_repo.py`：實作 `ITrackedStockRepository`（`add, remove, get_all, get_by_symbol, update_memo, count, search_by_symbol_or_name(query: str) -> list[TrackedStock]`）；新增股票使用 `INSERT OR IGNORE`（防止重複新增覆蓋 `added_at`）；更新備忘/排序時使用 `UPDATE ... WHERE symbol=?`（不觸碰 `added_at`）
-- [x] T018 [P] 建立 `src/midas/repositories/market_event_repo.py`：實作 `IMarketEventRepository`（`upsert_many, get_by_symbol_date, get_today_events_for_symbols`）；`upsert_many` 使用 `INSERT OR IGNORE`（以 UNIQUE(symbol, event_date, source_url) 去重）
+- [x] T018 [P] 建立 `src/midas/repositories/market_event_repo.py`：實作 `IMarketEventRepository`（`upsert_many, get_by_symbol_date, get_today_events_for_symbols`）；`upsert_many` 使用 `INSERT ... ON CONFLICT(symbol, event_date, source_url) DO UPDATE`（去重且允許覆寫 `occurred_at/title/source_name/fetched_at`）
 - [x] T019 [P] 建立 `src/midas/repositories/financial_metric_repo.py`：實作 `IFinancialMetricRepository`（`upsert_many, get_by_symbol, is_cache_valid`）；`is_cache_valid` 判斷最後 `fetched_at` 是否在 7 天內
 - [x] T020 [P] 建立 `src/midas/repositories/market_overview_repo.py`：實作 `IMarketOverviewRepository`（`upsert, get_by_date, get_latest`）
 - [x] T021 [P] 建立 `src/midas/repositories/update_job_repo.py`：實作 `IUpdateJobRepository`（`create, update_progress, complete, fail, get_latest, get_history`）
@@ -74,7 +74,7 @@
 ### C-3: Unit Tests (Data Layer)
 
 - [x] T022 [P] 建立 `tests/unit/test_cache_strategy.py`：測試 `FinancialMetricRepo.is_cache_valid()` 在不同 `fetched_at` 情境（7 天內 / 超過 7 天 / NULL）；使用 in-memory SQLite（`:memory:`）
-- [x] T023 [P] 建立 `tests/integration/test_sqlite_repos.py`（標記 `@pytest.mark.integration`）：對真實 in-memory SQLite 測試所有 Repo 的 CRUD + upsert 去重 + constraint 驗證
+- [x] T023 [P] 建立 `tests/integration/test_sqlite_repos.py`（標記 `@pytest.mark.integration`）：對真實 in-memory SQLite 測試所有 Repo 的 CRUD + upsert 衝突更新 + constraint 驗證
 
 **Checkpoint C**: `pytest tests/unit/test_cache_strategy.py` 全綠；`python -c "from midas.repositories.database import DatabaseManager; DatabaseManager().init()"` 建立 DB 不報錯；所有 5 張表存在
 
@@ -212,11 +212,11 @@
 - [x] T051 [US1] [US4] 完整實作 `src/midas/ui/pages/dashboard_page.py`：注入 `DashboardViewModel`；`load()` 方法清空並重建 `MarketOverviewCard` + `EventListItem` 清單；事件清單依 ViewModel 回傳順序渲染；無事件時顯示「今日無重要事件」；點選 EventListItem → `controller.show_frame(StockDetailPage, symbol=symbol)`
 - [x] T052 [US2] [US3] 完整實作 `src/midas/ui/pages/stock_detail_page.py`：含「事件」+ 「財務」兩個 CTkTabview；`load(symbol)` 呼叫 ViewModel；事件分頁渲染 `StockEventCard` 列表；財務分頁渲染 `FinancialMetricRow` 列表；無事件時顯示「今日無公告或事件」
 - [x] T053 [US4] 完整實作 `src/midas/ui/pages/watchlist_page.py`：追蹤股清單 + 新增輸入框（4–6 碼驗證）+ 刪除按鈕（含確認對話框）+ 備忘編輯框；即時搜尋篩選；達 30 檔顯示「已達上限（30 檔）」
-- [ ] T054 [US5] 建立 `src/midas/ui/pages/api_monitor_page.py`：`ApiMonitorPage(ctk.CTkFrame)`，顯示 API 配額指標：
-  - Gemini 卡片：今日已用 / 50 次、進度条、剩餘次數、狀態標示（正常/警告/已達上限）
-  - FinMind 卡片：Token 狀態（已設定 ✓ / 未設定 ✗）、本輪請求數 / 800、進度条
-  - 上次更新卡片：triggered_at、completed_steps/total_steps、狀態
-  - 【手動更新】按鈕（呼叫 `UpdateService.start_background_update()`）、【重新整理】按鈕
+- [x] T054 [US5] 建立 `src/midas/ui/pages/resource_monitor_page.py`：`ResourceMonitorPage(ctk.CTkFrame)`，顯示資源監控指標：
+  - Gemini 區塊：Key 狀態、前往 AI Studio 使用量連結
+  - FinMind 區塊：Token 狀態、每小時 API 用量進度條
+  - 本機快取區塊：最後更新、資料筆數、DB 大小
+  - 【重新整理】按鈕
 - [x] T055 完整實作 `src/midas/ui/pages/settings_page.py`：FinMind Token 輸入欄（儲存至 `app_settings`）、Gemini API Key 輸入欄（儲存至 `app_settings`）、深色/亮色切換、「清除快取」按鈕（清空 `market_events` + `financial_metrics`）
 
 **Checkpoint G**: 以 `scripts/load_fixtures.py` 載入假資料後，`python main.py` 可在首頁看到事件清單、點進個股詳情看到事件 + 財務分頁、在追蹤清單頁新增/刪除股票
@@ -261,9 +261,9 @@
 
 ---
 
-## Phase I: 整合驗收與打包 (Integration & Packaging)
+## Phase I: 整合驗收 (Integration)
 
-**目的**: 端對端驗收所有 User Story、錯誤情境、效能，以及 PyInstaller 打包
+**目的**: 端對端驗收所有 User Story、錯誤情境與效能
 **依賴**: Phase A–H 全部完成
 **預估**: 1 天
 
@@ -294,12 +294,12 @@
   - plan.md NFR：冷啟動至首頁顯示 < 3 秒（空 watchlist）
   - plan.md NFR：30 檔盤後完整更新 < 10 分鐘（15:00 後實測）
 
-### I-4: 打包
+### I-4: 打包（Deferred）
 
-- [x] T072 建立 `build.spec`：PyInstaller `--onedir` 設定（非 `--onefile`），含 `datas` 設定（customtkinter 資源檔）、`hiddenimports`、`name = "Midas"`、`icon = assets/icon.ico`
-- [x] T073 執行 `pyinstaller build.spec` → 驗證 `dist/Midas/Midas.exe` 可在**未安裝 Python** 的環境啟動、顯示主視窗、DB 建立於正確路徑 `%APPDATA%\Midas\midas.db`
+- [ ] T072 [Deferred] 打包規格維護：未納入目前 MVP 範圍，待後續版本再加入。
+- [ ] T073 [Deferred] 可執行檔驗收：未納入目前 MVP 範圍，待後續版本再加入。
 
-**Checkpoint I**: 所有 US-01 ~ US-05 驗收清單全綠；`pytest tests/unit/` 全綠（0 failures）；打包後 Midas.exe 冷啟動 < 3 秒
+**Checkpoint I**: 所有 US-01 ~ US-05 驗收清單全綠；`pytest tests/unit/` 全綠（0 failures）
 
 ---
 

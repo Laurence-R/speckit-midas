@@ -136,11 +136,20 @@ class TestMarketEventRepo:
         assert len(events) == 1
         assert events[0].title == "2025 Q4 財報"
 
-    def test_upsert_ignores_duplicate(self, conn) -> None:
+    def test_upsert_updates_duplicate(self, conn) -> None:
         repo = MarketEventRepo(conn)
         e = self._make_event()
-        repo.upsert_many([e, e])  # same source_url → duplicate ignored
-        assert len(repo.get_by_symbol_date("2330", "2026-05-19")) == 1
+        repo.upsert_many([e])
+
+        updated = self._make_event()
+        updated.occurred_at = datetime(2026, 5, 19, 18, 49)
+        updated.title = "更新後標題"
+        repo.upsert_many([updated])  # same source_url → duplicate updated
+
+        events = repo.get_by_symbol_date("2330", "2026-05-19")
+        assert len(events) == 1
+        assert events[0].occurred_at == datetime(2026, 5, 19, 18, 49)
+        assert events[0].title == "更新後標題"
 
     def test_get_today_events_for_symbols(self, conn) -> None:
         repo = MarketEventRepo(conn)

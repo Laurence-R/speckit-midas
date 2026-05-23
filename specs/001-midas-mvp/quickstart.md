@@ -57,19 +57,6 @@ uv run pytest tests/unit/
 uv run pytest --cov=src/midas tests/unit/
 ```
 
-## 打包為可執行檔
-
-```powershell
-# 安裝 PyInstaller（開發依賴）
-uv add --dev pyinstaller
-
-# 執行打包
-uv run pyinstaller build.spec
-
-# 輸出位於 dist/midas/
-# 執行：dist/midas/midas.exe
-```
-
 ## 開發期間的測試資料
 
 ```powershell
@@ -91,7 +78,7 @@ src/midas/
 ├── agents/         # 資料抓取與 LLM 協作
 ├── repositories/   # SQLite 存取層
 ├── models/         # Python dataclasses
-├── integrations/   # FinMind / MOPS / Gemini client
+├── integrations/   # FinMind / Gemini client
 └── tasks/          # Background worker（queue + thread）
 ```
 
@@ -102,5 +89,4 @@ src/midas/
 | `uv sync` | 安裝 / 同步所有依賴 |
 | `uv run pytest tests/unit/` | 跑單元測試（無 API 呼叫） |
 | `uv run python main.py` | 開發模式啟動 |
-| `uv run pyinstaller build.spec` | 打包 Windows 可執行檔 |
 | `uv add <package>` | 新增依賴 |
